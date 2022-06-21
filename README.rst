@@ -134,6 +134,13 @@ will come into action, install all the tools listed in
 
    pre-commit install
 
+.. note::
+
+   If you addressed errors pointed out by ``pre-commit``, run ``git add``
+   again. ``pre-commit`` always runs on the staged state, if you don't
+   ``git add`` again, you will run it on the previously staged version of
+   the files.
+
 Choose your code formatter
 --------------------------
 
@@ -146,6 +153,11 @@ you can do it by the command below (in this example YAPF):
 .. code:: bash
 
    pre-commit run yapf --hook-stage manual
+
+Do not use two code formatters at the same time: one will do changes on your
+file, the other will do different changes on the same line, and they will do
+it back and forth just useless. Ultimately you will always commit the outcome
+of the last code formatter.
 
 Set up your linter
 ------------------
