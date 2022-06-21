@@ -108,8 +108,8 @@ changes below:
    git add pyproject.toml
    git commit -nm 'set license to MIT'
 
-Setup the tools
----------------
+Set up the tools
+----------------
 
 Initialize ``poetry`` and ``tox``:
 
