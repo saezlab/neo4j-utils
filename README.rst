@@ -24,7 +24,13 @@ page in `this spreadsheet <https://docs.google.com/spreadsheets/d\
 Setup
 =====
 
+Project name
+------------
+
 Find a name for your project. Below we use the placeholder ``new_project``.
+
+Install tools
+-------------
 
 Make sure the necessary management tools are installed on your system:
 
@@ -33,6 +39,9 @@ Make sure the necessary management tools are installed on your system:
    curl -sSL https://install.python-poetry.org | python3 -
    pip install --user tox pre-commit
 
+Copy the template
+-----------------
+
 Clone the repo in your new project directory, and enter the directory:
 
 .. code:: bash
@@ -40,11 +49,17 @@ Clone the repo in your new project directory, and enter the directory:
    git clone https://github.com/saezlab/python_project new_project
    cd new_project
 
+Project git repo
+----------------
+
 Create a repo for your project and make the cloned repo point to this repo:
 
 .. code:: bash
 
    git remote origin set-url git@github.com:saezlab/new_project
+
+Rename it
+---------
 
 Change the placeholder ``project_name`` used in this template in all files.
 
@@ -60,6 +75,9 @@ Change the placeholder ``project_name`` used in this template in all files.
    git add -u
    git commit -nm 'set project name'
 
+Add your name
+-------------
+
 Change the author name and email in ``pyproject.toml`` and the headers of
 all files in the module directory. Commit the changes.
 
@@ -69,6 +87,9 @@ all files in the module directory. Commit the changes.
    find . -depth -type f -exec sed -i '' 's/turei\.denes@gmail\.com/your@email/g' {} +
    git add -u
    git commit -nm 'set author'
+
+License
+-------
 
 Change the license if necessary (by default it's GNU GPL v3). Copy over the
 ``LICENSE`` file with the text of your license and edit the license field in
@@ -86,6 +107,9 @@ changes below:
    git add LICENSE
    git add pyproject.toml
    git commit -nm 'set license to MIT'
+
+Setup the tools
+---------------
 
 Initialize ``poetry`` and ``tox``:
 
@@ -110,19 +134,28 @@ will come into action, install all the tools listed in
 
    pre-commit install
 
-Choose your code formatter. In the config there are three code formatter set
-up but all disabled. These are YAPF, Black and fixit. To enable one of them,
-remove the ``stages: [manual]`` from its hook. In this case the code formatter
-will run and change your files upon each commit. If you prefer to run it only
-manually, you can do it by the command below (in this example YAPF):
+Choose your code formatter
+--------------------------
+
+In the config there are three code formatter set up but all disabled. These
+are YAPF, Black and fixit. To enable one of them, remove the
+``stages: [manual]`` from its hook. In this case the code formatter will run
+and change your files upon each commit. If you prefer to run it only manually,
+you can do it by the command below (in this example YAPF):
 
 .. code:: bash
 
    pre-commit run yapf --hook-stage manual
 
-Set up your linter. In the ``tool.flake8`` section of ``pyproject.toml``,
+Set up your linter
+------------------
+
+In the ``tool.flake8`` section of ``pyproject.toml``,
 add the codes of general or directory or file specific exceptions. In
 code files for individual cases use the ``# noqa:`` tags.
+
+Docs with Sphinx
+----------------
 
 A Github action is set up to build and publish your documentation on Github.
 Edit ``docs/src/index.rst``, the main page of your documentation. You can
