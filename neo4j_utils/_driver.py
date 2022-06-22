@@ -16,6 +16,8 @@ A wrapper around the Neo4j driver which handles the DBMS connection and
 provides basic management methods.
 """
 
+from __future__ import annotations
+
 from ._logger import logger
 
 logger.debug(f'Loading module {__name__.strip("_")}.')
@@ -51,7 +53,7 @@ class Driver:
 
     def __init__(
         self,
-        driver: Optional[neo4j.Driver]=None,
+        driver: Optional[Union[neo4j.Driver, Driver]]=None,
         db_name: Optional[str]=None,
         db_uri: Optional[str]=None,
         db_user: Optional[str]=None,
@@ -86,7 +88,7 @@ class Driver:
                 Ignored.
         """
 
-        self.driver = driver
+        self.driver = getattr(driver, 'driver', driver)
         self._db_config = {
             'uri': db_uri,
             'user': db_user,
