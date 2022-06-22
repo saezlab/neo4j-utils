@@ -39,6 +39,8 @@ __all__ = ['Driver']
 
 
 CONFIG_FILES = Literal['neo4j.yaml', 'neo4j.yml']
+DEFAULT_USER = 'neo4j'
+DEFAULT_PASSWD = 'neo4j'
 
 
 class Driver:
@@ -168,8 +170,8 @@ class Driver:
         return (
             tuple(self._db_config.get('auth', ())) or
             (
-                self._db_config.get('user', 'neo4j'),
-                self._db_config.get('passwd', 'neo4j'),
+                self._db_config.get('user', None) or DEFAULT_USER,
+                self._db_config.get('passwd', None) or DEFAULT_PASSWD,
             )
         )
 
