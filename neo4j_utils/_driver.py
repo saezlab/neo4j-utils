@@ -368,7 +368,15 @@ class Driver:
 
             with self.session(**session_args) as session:
 
-                res = session.run(query, **kwargs)
+                try:
+
+                    res = session.run(query, **kwargs)
+
+                except neo4j.exceptions.ServiceUnavailable:
+
+                    logger.error('Could not access Neo4j server.')
+
+                    return None, None
 
                 return res.data(), res.consume()
 
@@ -380,7 +388,8 @@ class Driver:
             if fallback_db:
 
                 logger.warn(
-                    f'Running query against fallback database `{fallback_db}`.',
+                    'Running query against fallback '
+                    f'database `{fallback_db}`.',
                 )
 
                 return self.query(
