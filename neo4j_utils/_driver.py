@@ -66,9 +66,6 @@ class Driver:
             loaded into an empty database.
         kwargs:
             Ignored.
-
-    Todo:
-        - remove biocypher-specific init args, possible?
     """
 
     def __init__(

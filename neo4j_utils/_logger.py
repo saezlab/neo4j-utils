@@ -42,10 +42,9 @@ def get_logger(name: str = 'neo4ju') -> logging.Logger:
 
     if not logging.getLogger(name).hasHandlers():
 
-        file_formatter = logging.Formatter(
-            '[%(asctime)s] [%(levelname)s] [%(module)s] %(message)s'
+        formatter = logging.Formatter(
+            '[ %(asctime)s ] [ %(levelname)s ] [ %(module)s ] %(message)s'
         )
-        stdout_formatter = logging.Formatter('%(levelname)s -- %(message)s')
 
         now = datetime.now()
         date_time = now.strftime('%Y%m%d-%H%M%S')
@@ -56,11 +55,11 @@ def get_logger(name: str = 'neo4ju') -> logging.Logger:
 
         file_handler = logging.FileHandler(logfile)
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(file_formatter)
+        file_handler.setFormatter(formatter)
 
         stdout_handler = logging.StreamHandler()
         stdout_handler.setLevel(logging.WARN)
-        stdout_handler.setFormatter(stdout_formatter)
+        stdout_handler.setFormatter(formatter)
 
         logger = logging.getLogger(name)
         logger.addHandler(file_handler)

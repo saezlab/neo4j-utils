@@ -18,7 +18,10 @@ __all__ = [
     'Driver',
     '__author__',
     '__version__',
+    'log',
+    'logfile',
 ]
 
-from ._driver import Driver
 from ._metadata import __author__, __version__
+from ._driver import Driver
+from ._logger import log, logfile
