@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# Copyright 2021-2022, Heidelberg University Clinic
+# Copyright 2021-2022, Heidelberg University Hospital
 #
 # File author(s): Denes Turei <turei.denes@gmail.com>
 #                 Sebastian Lobentanzer
@@ -28,7 +28,7 @@ import contextlib
 import yaml
 import neo4j
 
-__all__ = ['DriverBase']
+__all__ = ['Driver']
 
 
 class Driver:
@@ -383,7 +383,7 @@ class Driver:
             if fallback_db:
 
                 logger.warn(
-                    f'Running query against fallback database `{fallback_db}`.'
+                    f'Running query against fallback database `{fallback_db}`.',
                 )
 
                 return self.query(

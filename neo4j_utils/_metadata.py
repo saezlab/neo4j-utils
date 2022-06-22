@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# Copyright 2021-2022, Heidelberg University Clinic
+# Copyright 2021-2022, Heidelberg University Hospital
 #
 # File author(s): Denes Turei <turei.denes@gmail.com>
 #                 Sebastian Lobentanzer

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# Copyright 2021-2022, Heidelberg University Clinic
+# Copyright 2021-2022, Heidelberg University Hospital
 #
 # File author(s): Denes Turei <turei.denes@gmail.com>
 #                 Sebastian Lobentanzer
@@ -20,5 +20,5 @@ __all__ = [
     '__version__',
 ]
 
-from ._metadata import __author__, __version__
 from ._driver import Driver
+from ._metadata import __author__, __version__
