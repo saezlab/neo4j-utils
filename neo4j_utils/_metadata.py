@@ -17,7 +17,7 @@ __all__ = ['get_metadata']
 
 import os
 import pathlib
-import importlib
+import importlib.metadata
 
 import toml
 
@@ -54,19 +54,7 @@ def get_metadata():
 
     if not meta:
 
-        installed_meta = importlib.metadata.metadata(here.name).split('\n')
-
-        meta = {
-            (
-                key.strip().lower(),
-                val.strip(),
-            )
-            for key, val in
-            (
-                item.split(':')
-                for item in installed_meta
-            )
-        }  # noqa: C402
+        meta = dict(importlib.metadata.metadata(here.name).items())
 
     return meta
 
