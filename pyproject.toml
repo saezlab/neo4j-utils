@@ -31,6 +31,7 @@ python = "^3.8"
 toml = "*"
 neo4j = "^4.4"
 PyYAML = ">=5.0"
+colorlog = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = ">=6.0"

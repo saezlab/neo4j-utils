@@ -19,7 +19,7 @@ logger.debug(f'Loading module {__name__.strip("_")}.')
 
 from typing import Optional
 
-__all__ = ['bcolors', 'pretty']
+__all__ = ['bcolors', 'pretty', 'dict_str']
 
 
 class bcolors:
@@ -98,3 +98,15 @@ def pretty(d, lines: Optional[list]=None, indent: int=0) -> list:
             pretty(chi, lines, indent + 1)
 
     return lines
+
+
+def dict_str(dct: dict) -> str:
+    """
+    String representation of a dict.
+    """
+
+    if not isinstance(dct, dict):
+
+        return str(dct)
+
+    return ', '.join(f'{str(key)}={str(val)}' for key, val in dct.items())

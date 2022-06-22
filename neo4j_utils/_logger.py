@@ -20,6 +20,9 @@ import os
 import pydoc
 import logging
 import tempfile
+import importlib as imp
+
+import colorlog
 
 from ._metadata import __version__
 
@@ -41,7 +44,7 @@ def get_logger(name: str = 'neo4ju') -> logging.Logger:
 
     if not logging.getLogger(name).hasHandlers():
 
-        formatter = logging.Formatter(
+        file_formatter = logging.Formatter(
             '[ %(asctime)s ] [ %(levelname)s ] [ %(module)s ] %(message)s',
         )
 
@@ -54,11 +57,38 @@ def get_logger(name: str = 'neo4ju') -> logging.Logger:
 
         file_handler = logging.FileHandler(logfile)
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
+        file_handler.setFormatter(file_formatter)
 
-        stdout_handler = logging.StreamHandler()
+        stdout_handler = colorlog.StreamHandler()
         stdout_handler.setLevel(logging.WARN)
-        stdout_handler.setFormatter(formatter)
+        stdout_handler.setFormatter(
+            colorlog.ColoredFormatter(
+                fmt = (
+                    '%(log_color)s'
+                    '[%(asctime)s.%(msecs)-3d] '
+                    '%(func_in_brackets)s '
+                    '%(level_in_brackets)s '
+                    '%(message)s'
+                ),
+                datefmt = '%Y-%m-%d %H:%M:%S',
+            ),
+        )
+
+        _logfactory = logging.getLogRecordFactory()
+
+
+        def _logfactory_patched(*args, **kwargs):
+
+            record = _logfactory(*args, **kwargs)
+            record.func_in_brackets = '[%s.%s]' % (record.name, record.funcName)
+            record.func_in_brackets = '%-30s' % record.func_in_brackets
+            record.level_in_brackets = '[%s]' % record.levelname
+            record.level_in_brackets = '%-10s' % record.level_in_brackets
+
+            return record
+
+
+        logging.setLogRecordFactory(_logfactory_patched)
 
         logger = logging.getLogger(name)
         logger.addHandler(file_handler)

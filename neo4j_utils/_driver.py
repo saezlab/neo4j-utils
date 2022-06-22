@@ -31,8 +31,9 @@ import contextlib
 
 import yaml
 import neo4j
+import neo4j.exceptions as neo4j_exc
 
-from ._print import pretty
+import neo4j_utils._print as printer
 
 __all__ = ['Driver']
 
@@ -140,7 +141,9 @@ class Driver:
 
             self.read_config()
 
-        # check for database running?
+        con_param = printer.dict_str(dict(uri = self.uri, auth = self.auth))
+        logger.info(f'Attempting to connect: {con_param}')
+
         self.driver = neo4j.GraphDatabase.driver(
             uri=self.uri,
             auth=self.auth,
@@ -267,7 +270,20 @@ class Driver:
             which: Literal['HOME', 'DEFAULT'] = 'HOME',
     ) -> Optional[str]:
 
-        resp, summary = self.query('SHOW %s DATABASE;' % which)
+        try:
+
+            resp, summary = self.query(
+                f'SHOW {which} DATABASE;',
+                fallback_db = 'neo4j',
+            )
+
+        except (neo4j_exc.AuthError, neo4j_exc.ServiceUnavailable) as e:
+
+            logger.error(
+                'No connection to Neo4j server: '
+                f'{e.__class__.__name__}: {str(e)}'
+            )
+            return
 
         if resp:
 
@@ -379,7 +395,7 @@ class Driver:
 
                     res = session.run(query, **kwargs)
 
-                except neo4j.exceptions.ServiceUnavailable:
+                except neo4j_exc.ServiceUnavailable:
 
                     logger.error('Could not access Neo4j server.')
 
@@ -387,7 +403,7 @@ class Driver:
 
                 return res.data(), res.consume()
 
-        except (neo4j.exceptions.Neo4jError, neo4j.exceptions.DriverError):
+        except (neo4j_exc.Neo4jError, neo4j_exc.DriverError):
 
             fallback_db = fallback_db or getattr(self, '_fallback_db', None)
             self._fallback_db = None
@@ -440,7 +456,7 @@ class Driver:
         )
 
         plan = summary.plan
-        printout = pretty(plan)
+        printout = printer.pretty(plan)
 
         return plan, printout
 
@@ -492,19 +508,19 @@ class Driver:
 
         # get print representation
         header = f'Execution time: {exec_time:n}\n'
-        printout = pretty(prof, [header], indent=0)
+        printout = printer.pretty(prof, [header], indent=0)
 
         return prof, printout
 
 
     @property
-    def current_db(self):
+    def current_db(self) -> str:
         """
         Name of the database (graph) where the next query would be
         executed.
 
         Returns:
-            (str): Name of a database.
+            Name of a database.
         """
 
         return self._db_config['db'] or self._driver_con_db or self._home_db
@@ -520,7 +536,15 @@ class Driver:
         with warnings.catch_warnings():
 
             warnings.simplefilter('ignore')
-            driver_con = self.driver.verify_connectivity()
+
+            try:
+
+                driver_con = self.driver.verify_connectivity()
+
+            except neo4j_exc.ServiceUnavailable:
+
+                logger.error('Can not access Neo4j server.')
+                return
 
         if driver_con:
 
@@ -571,7 +595,7 @@ class Driver:
 
             resp, summary = self.query(query)
 
-        #except neo4j.exceptions.ServiceUnavailable:
+        #except neo4j_exc.ServiceUnavailable:
 
             #logger.warn(f'Database `{name}` is unavailable.')
             #resp, summary = self.query(query, db = 'neo4j')
