@@ -1,27 +1,24 @@
 #!/usr/bin/env python
 
 #
-# Copyright 2022, Saez Lab
+# Copyright 2021-2022, Heidelberg University Clinic
 #
 # File author(s): Denes Turei <turei.denes@gmail.com>
-#                 ...
+#                 Sebastian Lobentanzer
 #
-# Distributed under GPLv3 license, see the file `LICENSE`.
+# Distributed under the MIT (Expat) license, see the file `LICENSE`.
 #
 
 
 """
-Python project template.
+Extra utils for using Neo4j.
 """
 
-__all__ = ['twentythree']
+__all__ = [
+    'Driver',
+    '__author__',
+    '__version__',
+]
 
 from ._metadata import __author__, __version__
-
-
-def twentythree() -> int:
-    """
-    The number twenty-three.
-    """
-
-    return 23
+from ._driver import Driver

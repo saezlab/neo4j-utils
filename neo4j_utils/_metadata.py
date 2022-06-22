@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 #
-# Copyright 2022, Saez Lab
+# Copyright 2021-2022, Heidelberg University Clinic
 #
 # File author(s): Denes Turei <turei.denes@gmail.com>
-#                 ...
+#                 Sebastian Lobentanzer
 #
-# Distributed under GPLv3 license, see the file `LICENSE`.
+# Distributed under the MIT (Expat) license, see the file `LICENSE`.
 #
 
 """
