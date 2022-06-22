@@ -159,6 +159,23 @@ class Driver:
 
 
     @property
+    def status(self) -> Literal[
+            'no driver',
+            'no connection',
+            'db offline',
+            'db online',
+        ]:
+
+        if not self.driver:
+
+            return 'no driver'
+
+        db_status = self.db_status()
+
+        return f'db {db_status}' if db_status else 'no connection'
+
+
+    @property
     def uri(self):
 
         return self._db_config.get('uri', None) or 'neo4j://localhost:7687'
@@ -274,13 +291,13 @@ class Driver:
 
 
     @property
-    def _home_db(self) -> Optional[str]:
+    def home_db(self) -> Optional[str]:
 
         return self._db_name()
 
 
     @property
-    def _default_db(self) -> Optional[str]:
+    def default_db(self) -> Optional[str]:
 
         return self._db_name('DEFAULT')
 
@@ -411,19 +428,11 @@ class Driver:
 
             with self.session(**session_args) as session:
 
-                try:
-
-                    res = session.run(query, **kwargs)
-
-                except neo4j_exc.ServiceUnavailable:
-
-                    logger.error('Could not access Neo4j server.')
-
-                    return None, None
+                res = session.run(query, **kwargs)
 
                 return res.data(), res.consume()
 
-        except (neo4j_exc.Neo4jError, neo4j_exc.DriverError):
+        except (neo4j_exc.Neo4jError, neo4j_exc.DriverError) as e:
 
             fallback_db = fallback_db or getattr(self, '_fallback_db', None)
             self._fallback_db = None
@@ -445,7 +454,11 @@ class Driver:
 
             else:
 
-                raise
+                logger.error(
+                    f'Failed to run query: {e.__class__.__name__}: {str(e)}'
+                )
+
+                return None, None
 
 
     def explain(
@@ -543,7 +556,7 @@ class Driver:
             Name of a database.
         """
 
-        return self._db_config['db'] or self._driver_con_db or self._home_db
+        return self._db_config['db'] or self._driver_con_db or self.home_db
 
 
     @property
@@ -614,11 +627,6 @@ class Driver:
         with self.fallback_db():
 
             resp, summary = self.query(query)
-
-        #except neo4j_exc.ServiceUnavailable:
-
-            #logger.warn(f'Database `{name}` is unavailable.')
-            #resp, summary = self.query(query, db = 'neo4j')
 
         if resp:
 
@@ -702,8 +710,7 @@ class Driver:
         """
 
         self.query(
-            '%s DATABASE %s %s;'
-            % (
+            '%s DATABASE %s %s;' % (
                 cmd,
                 name or self.current_db,
                 options or '',
@@ -774,7 +781,7 @@ class Driver:
 
         for constraint in s.run('CALL db.constraints'):
 
-            s.run('DROP CONSTRAINT ' + constraint[0])
+            s.run(f'DROP CONSTRAINT {constraint[0]}')
 
         s.close()
 
