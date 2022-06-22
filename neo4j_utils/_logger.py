@@ -21,7 +21,7 @@ import pydoc
 import logging
 import tempfile
 
-from neo4j_utils import __version__
+from ._metadata import __version__
 
 
 def get_logger(name: str = 'neo4ju') -> logging.Logger:
