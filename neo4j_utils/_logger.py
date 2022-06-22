@@ -13,13 +13,12 @@
 Configuration of the module logger.
 """
 
-__all__ = ['logger', 'get_logger', 'logfile', 'log']
+__all__ = ['get_logger', 'log', 'logfile']
 
-import logging
-import os
-import yaml
 from datetime import datetime
+import os
 import pydoc
+import logging
 import tempfile
 
 from neo4j_utils import __version__
@@ -43,14 +42,14 @@ def get_logger(name: str = 'neo4ju') -> logging.Logger:
     if not logging.getLogger(name).hasHandlers():
 
         formatter = logging.Formatter(
-            '[ %(asctime)s ] [ %(levelname)s ] [ %(module)s ] %(message)s'
+            '[ %(asctime)s ] [ %(levelname)s ] [ %(module)s ] %(message)s',
         )
 
         now = datetime.now()
         date_time = now.strftime('%Y%m%d-%H%M%S')
 
         logdir = os.path.join(tempfile.gettempdir(), 'neo4j-utils-log')
-        os.makedirs(logdir, exist_ok = True)
+        os.makedirs(logdir, exist_ok=True)
         logfile = os.path.join(logdir, f'neo4j-utils-{date_time}.log')
 
         file_handler = logging.FileHandler(logfile)
@@ -85,7 +84,7 @@ def log():
     Browse the log file.
     """
 
-    with open(logfile(), 'r') as fp:
+    with open(logfile()) as fp:
 
         pydoc.pager(fp.read())
 

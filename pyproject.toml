@@ -29,6 +29,8 @@ readme = "README.rst"
 [tool.poetry.dependencies]
 python = "^3.8"
 toml = "*"
+neo4j = "^4.4"
+PyYAML = ">=5.0"
 
 [tool.poetry.dev-dependencies]
 pytest = ">=6.0"

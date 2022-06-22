@@ -22,6 +22,6 @@ __all__ = [
     'logfile',
 ]
 
-from ._metadata import __author__, __version__
 from ._driver import Driver
 from ._logger import log, logfile
+from ._metadata import __author__, __version__
