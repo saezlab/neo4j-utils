@@ -17,13 +17,13 @@ import pathlib
 here = pathlib.Path(__file__).parent
 sys.path.insert(0, str(here.parent))
 
-import project_name  # noqa: E402
+import neo4j_utils  # noqa: E402
 
 # -- Project information -----------------------------------------------------
 
-project = 'project_name'
-version = project_name.__version__
-author = ', '.join(project_name.__author__)
+project = 'neo4j_utils'
+version = neo4j_utils.__version__
+author = ', '.join(neo4j_utils.__author__)
 years = '-'.join(sorted({'2022', f'{datetime.now():%Y}'}))
 copyright = f'{years}, Saez Lab'
 

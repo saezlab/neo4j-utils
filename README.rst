@@ -61,7 +61,7 @@ Create a repo for your project and make the cloned repo point to this repo:
 Rename it
 ---------
 
-Change the placeholder ``project_name`` used in this template in all files.
+Change the placeholder ``neo4j_utils`` used in this template in all files.
 
 .. note::
 
@@ -71,7 +71,7 @@ Change the placeholder ``project_name`` used in this template in all files.
 
 .. code:: bash
 
-   find . -depth -type f -exec sed -i '' 's/project_name/project_name/g' {} +
+   find . -depth -type f -exec sed -i '' 's/neo4j_utils/neo4j_utils/g' {} +
    git add -u
    git commit -nm 'set project name'
 

@@ -11,10 +11,10 @@ and remove the parts below (or edit ``README.rst`` in the project root).
 Reference
 #########
 
-project_name
+neo4j_utils
 ============
 
-.. automodule:: project_name
+.. automodule:: neo4j_utils
    :members:
 
 ###########################
