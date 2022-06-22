@@ -110,3 +110,13 @@ def dict_str(dct: dict) -> str:
         return str(dct)
 
     return ', '.join(f'{str(key)}={str(val)}' for key, val in dct.items())
+
+
+def error_str(e: BaseException) -> str:
+    """
+    Simple string representation of an exception.
+
+    Used for log messages.
+    """
+
+    return f'{e.__class__.__name__}: {str(e)}'

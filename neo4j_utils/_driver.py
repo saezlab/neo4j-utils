@@ -317,8 +317,7 @@ class Driver:
         except (neo4j_exc.AuthError, neo4j_exc.ServiceUnavailable) as e:
 
             logger.error(
-                'No connection to Neo4j server: '
-                f'{e.__class__.__name__}: {str(e)}'
+                f'No connection to Neo4j server: {printer.error_str(e)}'
             )
             return
 
@@ -455,7 +454,7 @@ class Driver:
             else:
 
                 logger.error(
-                    f'Failed to run query: {e.__class__.__name__}: {str(e)}'
+                    f'Failed to run query: {printer.error_str(e)}'
                 )
 
                 return None, None
@@ -727,7 +726,7 @@ class Driver:
 
         self.query('MATCH (n) DETACH DELETE n;')
 
-        self._drop_constraints()
+        self.drop_constraints()
 
 
     def ensure_db(self):
@@ -772,41 +771,48 @@ class Driver:
                 self.db_connect()
 
 
-    def _drop_constraints(self):
+    def drop_constraints(self):
         """
-        Drops all constraints in the database. Requires the database to
-        be empty.
+        Drops all constraints in the current database.
+
+        Requires the database to be empty.
         """
 
-        s = self.driver.session()
+        with self.session() as s:
 
-        for constraint in s.run('CALL db.constraints'):
+            try:
 
-            s.run(f'DROP CONSTRAINT {constraint[0]}')
+                constraints = s.run('CALL db.constraints')
 
-        s.close()
+                for constraint in constraints:
+
+                    s.run(f'DROP CONSTRAINT {constraint[0]}')
+
+            except (neo4j_exc.Neo4jError, neo4j_exc.DriverError) as e:
+
+                logger.error(f'Failed to run query: {printer.error_str(e)}')
 
 
     @property
-    def node_count(self):
+    def node_count(self) -> Optional[int]:
         """
         Number of nodes in the database.
         """
 
         res, summary = self.query('MATCH (n) RETURN COUNT(n) AS count;')
 
-        return res[0]['count']
+        return res[0]['count'] if res else None
 
 
     @property
-    def edge_count(self):
+    def edge_count(self) -> Optional[int]:
         """
         Number of edges in the database.
         """
 
         res, summary = self.query('MATCH ()-[r]->() RETURN COUNT(r) AS count;')
 
-        return res[0]['count']
+        return res[0]['count'] if res else None
 
 
     @property
