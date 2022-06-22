@@ -6,7 +6,7 @@ build-backend = "poetry.core.masonry.api"
 name = "neo4j_utils"
 version = "0.0.1"
 description = "Project description"
-license = "GPL-3.0-only"
+license = "MIT"
 authors = [
     "Denes Turei <turei.denes@gmail.com>"
 ]
