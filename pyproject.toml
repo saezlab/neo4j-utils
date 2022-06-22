@@ -3,16 +3,14 @@ requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "neo4j_utils"
+name = "neo4j-utils"
 version = "0.0.3"
-description = "Project description"
+description = ""
 license = "MIT"
 authors = [
     "Denes Turei <turei.denes@gmail.com>"
 ]
-packages = [
-    { include = "neo4j_utils" }
-]
+packages = []
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
@@ -23,7 +21,7 @@ classifiers = [
     "Natural Language :: English",
     "Topic :: Scientific/Engineering :: Bio-Informatics"
 ]
-repository = "https://github.com/saezlab/python-project"
+repository = "https://github.com/saezlab/neo4j-utils"
 readme = "README.rst"
 
 [tool.poetry.dependencies]
@@ -45,7 +43,7 @@ sphinx-last-updated-by-git = ">=0.3"
 sphinx-autodoc-typehints = ">=1.18.0"
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/saezlab/python-template/issues"
+"Bug Tracker" = "https://github.com/saezlab/neo4j-utils/issues"
 
 [tool.black]
 line-length = 80
