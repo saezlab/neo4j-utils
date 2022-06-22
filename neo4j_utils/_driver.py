@@ -507,11 +507,15 @@ class Driver:
             (str): Name of a database.
         """
 
-        return self._db_config['db'] or self._home_db
+        return self._db_config['db'] or self._driver_con_db or self._home_db
 
 
     @property
     def _driver_con_db(self):
+
+        if not self.driver:
+
+            return
 
         with warnings.catch_warnings():
 
@@ -522,7 +526,7 @@ class Driver:
 
             first_con = next(driver_con.values().__iter__())[0]
 
-            return first_con.get('database', None)
+            return first_con.get('db', None)
 
 
     def db_exists(self, name=None):
