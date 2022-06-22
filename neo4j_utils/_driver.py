@@ -215,9 +215,9 @@ class Driver:
             passwd = self.passwd,
         )
 
-        for k, v in from_driver:
+        for k, v in from_driver.items():
 
-            self._db_config[k] = self._db_config.get(k, v)
+            self._db_config[k] = self._db_config.get(k, v) or v
 
 
     def _register_current_driver(self):
