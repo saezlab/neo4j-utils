@@ -663,7 +663,7 @@ class Driver:
         Starts a database (brings it online) if it is offline.
 
         Args:
-            name (str): Name of the database.
+            name: Name of the database.
         """
 
         self._manage_db('START', name=name)
@@ -674,7 +674,7 @@ class Driver:
         Stops a database, making sure it's offline.
 
         Args:
-            name (str): Name of the database.
+            name: Name of the database.
         """
 
         self._manage_db('STOP', name=name)
@@ -685,7 +685,7 @@ class Driver:
         Deletes a database if it exists.
 
         Args:
-            name (str): Name of the database.
+            name: Name of the database.
         """
 
         self._manage_db('DROP', name=name, options='IF EXISTS')
@@ -715,6 +715,7 @@ class Driver:
                 name or self.current_db,
                 options or '',
             ),
+            fallback_db = 'neo4j',
         )
 
 
