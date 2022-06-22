@@ -10,15 +10,17 @@
 #
 
 """
+Neo4j connection management and CYPHER interface.
+
 A wrapper around the Neo4j driver which handles the DBMS connection and
 provides basic management methods.
 """
 
 from ._logger import logger
 
-logger.debug(f'Loading module {__name__}.')
+logger.debug(f'Loading module {__name__.strip("_")}.')
 
-from typing import Union, Literal, Optional
+from typing import Union, Literal, Optional  # noqa: E402
 import os
 import re
 import warnings
@@ -28,44 +30,23 @@ import contextlib
 import yaml
 import neo4j
 
+from ._print import pretty
+
 __all__ = ['Driver']
 
 
 class Driver:
     """
+    Manage the connection to the Neo4j server.
 
-    Manages the connection to the Neo4j server. Establishes the
-    connection and executes queries. A wrapper around the `Driver`
-    object from the :py:mod:`neo4j` module, which is stored in the
-    :py:attr:`driver` attribute.
+    Establishes the connection and executes queries. A wrapper around
+    the `Driver` object from the :py:mod:`neo4j` module, which is stored
+    in the :py:attr:`driver` attribute.
 
     The connection can be defined in three ways:
         * Providing a ready ``neo4j.Driver`` instance
         * By URI and authentication data
         * By a YAML config file
-
-    Args:
-        driver:
-            A ``neo4j.Driver`` instance, created by, for example,
-            ``neo4j.GraphDatabase.driver``.
-        db_name:
-            Name of the database (Neo4j graph) to use.
-        db_uri:
-            Protocol, host and port to access the Neo4j server.
-        db_user:
-            Neo4j user name.
-        db_passwd:
-            Password of the Neo4j user.
-        fetch_size:
-            Optional; the fetch size to use in database transactions.
-        config:
-            Path to a YAML config file which provides the URI, user name
-            and password.
-        wipe:
-            Wipe the database after connection, ensuring the data is
-            loaded into an empty database.
-        kwargs:
-            Ignored.
     """
 
     def __init__(
@@ -80,6 +61,30 @@ class Driver:
         wipe: bool=False,
         **kwargs
     ):
+        """
+        Args:
+            driver:
+                A ``neo4j.Driver`` instance, created by, for example,
+                ``neo4j.GraphDatabase.driver``.
+            db_name:
+                Name of the database (Neo4j graph) to use.
+            db_uri:
+                Protocol, host and port to access the Neo4j server.
+            db_user:
+                Neo4j user name.
+            db_passwd:
+                Password of the Neo4j user.
+            fetch_size:
+                Optional; the fetch size to use in database transactions.
+            config:
+                Path to a YAML config file which provides the URI, user name
+                and password.
+            wipe:
+                Wipe the database after connection, ensuring the data is
+                loaded into an empty database.
+            kwargs:
+                Ignored.
+        """
 
         self.driver = driver
         self._db_config = {
@@ -424,10 +429,17 @@ class Driver:
         logger.info('Explaining a query.')
 
         data, summary = self.query(
-            query, db, fetch_size, write, explain=True, **kwargs
+            query,
+            db,
+            fetch_size,
+            write,
+            explain=True,
+            **kwargs
         )
+
         plan = summary.plan
         printout = pretty(plan)
+
         return plan, printout
 
 
