@@ -38,6 +38,9 @@ import neo4j_utils._print as printer
 __all__ = ['Driver']
 
 
+CONFIG_FILES = Literal['neo4j.yaml', 'neo4j.yml']
+
+
 class Driver:
     """
     Manage the connection to the Neo4j server.
@@ -59,7 +62,7 @@ class Driver:
         db_uri: Optional[str]=None,
         db_user: Optional[str]=None,
         db_passwd: Optional[str]=None,
-        config: Optional[str]='neo4j.yaml',
+        config: Optional[CONFIG_FILES]=None,
         fetch_size: int=1000,
         wipe: bool=False,
         **kwargs
@@ -164,7 +167,10 @@ class Driver:
 
         return (
             tuple(self._db_config.get('auth', ())) or
-            (self._db_config['user'], self._db_config['passwd'])
+            (
+                self._db_config.get('user', 'neo4j'),
+                self._db_config.get('passwd', 'neo4j'),
+            )
         )
 
 
@@ -187,6 +193,14 @@ class Driver:
             'name': 'db',
         }
 
+        if not self._config_file or not os.path.exists(self._config_file):
+
+            for config_file in CONFIG_FILES.__args__:
+
+                if os.path.exists(config_file):
+
+                    self._config_file = config_file
+
         if self._config_file and os.path.exists(self._config_file):
 
             logger.info('Reading config from `%s`.' % self._config_file)
@@ -203,6 +217,10 @@ class Driver:
                 if not self._db_config.get(k, None):
 
                     self._db_config[k] = v
+
+        else:
+
+            logger.warn('No config available, falling back to defaults.')
 
 
     def _config_from_driver(self):
