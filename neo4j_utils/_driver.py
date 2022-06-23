@@ -280,7 +280,7 @@ class Driver:
         Closes the Neo4j driver if it exists and is open.
         """
 
-        if hasattr(self.driver, 'close'):
+        if hasattr(self, 'driver') and hasattr(self.driver, 'close'):
 
             self.driver.close()
 
