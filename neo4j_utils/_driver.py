@@ -437,7 +437,6 @@ class Driver:
             with self.session(**session_args) as session:
                 
                 res = session.run(query, **kwargs)
-                res = session.run(query, **kwargs)
 
             return res.data(), res.consume()
 
