@@ -438,7 +438,7 @@ class Driver:
                 
                 res = session.run(query, **kwargs)
 
-            return res.data(), res.consume()
+                return res.data(), res.consume()
 
         except (neo4j_exc.Neo4jError, neo4j_exc.DriverError) as e:
 
