@@ -54,7 +54,10 @@ def get_metadata():
 
     if not meta:
 
-        meta = dict(importlib.metadata.metadata(here.name).items())
+        meta = {
+            k.lower(): v for k, v in
+            importlib.metadata.metadata(here.name).items()
+        }
 
     return meta
 
