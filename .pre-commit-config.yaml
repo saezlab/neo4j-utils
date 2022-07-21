@@ -39,6 +39,7 @@ repos:
     rev: v1.0.1
     hooks:
     -   id: upgrade-type-hints
+        args: [--futures=true]
 -   repo: https://github.com/asottile/add-trailing-comma
     rev: v2.2.3
     hooks:
