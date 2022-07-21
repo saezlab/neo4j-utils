@@ -35,7 +35,7 @@ import neo4j.exceptions as neo4j_exc
 
 import neo4j_utils._print as printer
 
-__all__ = ['Driver']
+__all__ = ['CONFIG_FILES', 'DEFAULT_PASSWD', 'DEFAULT_USER', 'Driver']
 
 
 CONFIG_FILES = Literal['neo4j.yaml', 'neo4j.yml']
@@ -59,12 +59,12 @@ class Driver:
 
     def __init__(
         self,
-        driver: Optional[Union[neo4j.Driver, Driver]]=None,
-        db_name: Optional[str]=None,
-        db_uri: Optional[str]=None,
-        db_user: Optional[str]=None,
-        db_passwd: Optional[str]=None,
-        config: Optional[CONFIG_FILES]=None,
+        driver: neo4j.Driver | Driver | None=None,
+        db_name: str | None=None,
+        db_uri: str | None=None,
+        db_user: str | None=None,
+        db_passwd: str | None=None,
+        config: CONFIG_FILES | None=None,
         fetch_size: int=1000,
         wipe: bool=False,
         **kwargs
@@ -164,7 +164,7 @@ class Driver:
             'no connection',
             'db offline',
             'db online',
-        ]:
+    ]:
 
         if not self.driver:
 
@@ -193,7 +193,7 @@ class Driver:
         )
 
 
-    def read_config(self, section: Optional[str]=None):
+    def read_config(self, section: str | None=None):
         """
         Populates the instance configuration from one section of a YAML
         config file.
@@ -268,7 +268,7 @@ class Driver:
     @staticmethod
     def _uri(
             host: str = 'localhost',
-            port: Union[str,int] = 7687,
+            port: str |int = 7687,
             protocol: str = 'neo4j',
     ) -> str:
 
@@ -291,13 +291,13 @@ class Driver:
 
 
     @property
-    def home_db(self) -> Optional[str]:
+    def home_db(self) -> str | None:
 
         return self._db_name()
 
 
     @property
-    def default_db(self) -> Optional[str]:
+    def default_db(self) -> str | None:
 
         return self._db_name('DEFAULT')
 
@@ -305,7 +305,7 @@ class Driver:
     def _db_name(
             self,
             which: Literal['HOME', 'DEFAULT'] = 'HOME',
-    ) -> Optional[str]:
+    ) -> str | None:
 
         try:
 
@@ -317,7 +317,7 @@ class Driver:
         except (neo4j_exc.AuthError, neo4j_exc.ServiceUnavailable) as e:
 
             logger.error(
-                f'No connection to Neo4j server: {printer.error_str(e)}'
+                f'No connection to Neo4j server: {printer.error_str(e)}',
             )
             return
 
@@ -329,12 +329,12 @@ class Driver:
     def query(
         self,
         query: str,
-        db: Optional[str]=None,
-        fetch_size: Optional[int]=None,
+        db: str | None=None,
+        fetch_size: int | None=None,
         write: bool=True,  # route to write server (default)
         explain: bool=False,
         profile: bool=False,
-        fallback_db: Optional[str] = None,
+        fallback_db: str | None = None,
         **kwargs,
     ):
         """
@@ -454,7 +454,7 @@ class Driver:
             else:
 
                 logger.error(
-                    f'Failed to run query: {printer.error_str(e)}'
+                    f'Failed to run query: {printer.error_str(e)}',
                 )
 
                 return None, None
@@ -601,9 +601,9 @@ class Driver:
 
     def db_status(
             self,
-            name: Optional[str] = None,
+            name: str | None = None,
             field: str = 'currentStatus',
-    ) -> Optional[Union[Literal['online', 'offline'], str, dict]]:
+    ) -> Literal['online', 'offline'] | str | dict | None:
         """
         Tells the current status or other state info of a database.
 
@@ -632,7 +632,7 @@ class Driver:
             return resp[0].get(field, resp[0])
 
 
-    def db_online(self, name: Optional[str] = None):
+    def db_online(self, name: str | None = None):
         """
         Tells if a database is currently online (active).
 
@@ -646,7 +646,7 @@ class Driver:
         return self.db_status(name=name) == 'online'
 
 
-    def create_db(self, name: Optional[str] = None):
+    def create_db(self, name: str | None = None):
         """
         Create a database if it does not already exist.
 
@@ -657,7 +657,7 @@ class Driver:
         self._manage_db('CREATE', name=name, options='IF NOT EXISTS')
 
 
-    def start_db(self, name: Optional[str] = None):
+    def start_db(self, name: str | None = None):
         """
         Starts a database (brings it online) if it is offline.
 
@@ -668,7 +668,7 @@ class Driver:
         self._manage_db('START', name=name)
 
 
-    def stop_db(self, name: Optional[str] = None):
+    def stop_db(self, name: str | None = None):
         """
         Stops a database, making sure it's offline.
 
@@ -679,7 +679,7 @@ class Driver:
         self._manage_db('STOP', name=name)
 
 
-    def drop_db(self, name: Optional[str] = None):
+    def drop_db(self, name: str | None = None):
         """
         Deletes a database if it exists.
 
@@ -693,8 +693,8 @@ class Driver:
     def _manage_db(
             self,
             cmd: Literal['CREATE', 'START', 'STOP', 'DROP'],
-            name: Optional[str] = None,
-            options: Optional[str] = None,
+            name: str | None = None,
+            options: str | None = None,
     ):
         """
         Executes a database management command.
@@ -709,7 +709,7 @@ class Driver:
         """
 
         self.query(
-            '%s DATABASE %s %s;' % (
+            '{} DATABASE {} {};'.format(
                 cmd,
                 name or self.current_db,
                 options or '',
@@ -771,6 +771,17 @@ class Driver:
                 self.db_connect()
 
 
+    def drop_indices_constraints(self):
+        """
+        Drops all indices and constraints in the current database.
+
+        Requires the database to be empty.
+        """
+
+        self.drop_indices()
+        self.drop_constraints()
+
+
     def drop_constraints(self):
         """
         Drops all constraints in the current database.
@@ -778,15 +789,59 @@ class Driver:
         Requires the database to be empty.
         """
 
+        self._drop_indices(what = 'constraints')
+
+
+
+    def drop_indices(self):
+        """
+        Drops all indices in the current database.
+
+        Requires the database to be empty.
+        """
+
+        self._drop_indices(what = 'indexes')
+
+
+    def _drop_indices(
+            self,
+            what: Literal['indexes', 'indices', 'constraints'] = 'constraints',
+    ):
+
+        what_s = {
+            'indexes': 'INDEX',
+            'indices': 'INDEX',
+            'constraints': 'CONSTRAINT',
+        }
+
+        what_u = what_s.get(what, None)
+
+        if not what_u:
+
+            msg = (
+                '_drop_indices: allowed keywords are: "indexes", '
+                f'"indices" or "constraints", not `{what}`.'
+            )
+
+            logger.log_error(msg)
+
+            raise ValueError(msg)
+
         with self.session() as s:
 
             try:
 
-                constraints = s.run('CALL db.constraints')
+                indices = s.run(f'CALL db.{what}')
 
-                for constraint in constraints:
+                indices = list(indices)
+                n_indices = len(indices)
+                index_names = ', '.join(i['name'] for i in indices)
 
-                    s.run(f'DROP CONSTRAINT {constraint[0]}')
+                for idx in indices:
+
+                    s.run(f'DROP {what_u} {idx["name"]}')
+
+                logger.info(f'Dropped {n_indices} indices: {index_names}.')
 
             except (neo4j_exc.Neo4jError, neo4j_exc.DriverError) as e:
 
@@ -794,7 +849,7 @@ class Driver:
 
 
     @property
-    def node_count(self) -> Optional[int]:
+    def node_count(self) -> int | None:
         """
         Number of nodes in the database.
         """
@@ -805,7 +860,7 @@ class Driver:
 
 
     @property
-    def edge_count(self) -> Optional[int]:
+    def edge_count(self) -> int | None:
         """
         Number of edges in the database.
         """
@@ -816,7 +871,7 @@ class Driver:
 
 
     @property
-    def user(self) -> Optional[str]:
+    def user(self) -> str | None:
         """
         User for the currently active connection.
 
@@ -828,7 +883,7 @@ class Driver:
         return self._extract_auth[0]
 
     @property
-    def passwd(self) -> Optional[str]:
+    def passwd(self) -> str | None:
         """
         Password for the currently active connection.
 
@@ -841,7 +896,7 @@ class Driver:
 
 
     @property
-    def _extract_auth(self) -> tuple[Optional[str], Optional[str]]:
+    def _extract_auth(self) -> tuple[str | None, str | None]:
         """
         Extract authentication data from the Neo4j driver.
         """
