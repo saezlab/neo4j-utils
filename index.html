@@ -211,9 +211,23 @@ dictionary with all fields will be returned.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.drop_indices">
+<span class="sig-name descname"><span class="pre">drop_indices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.drop_indices" title="Permalink to this definition"></a></dt>
+<dd><p>Drops all indices in the current database.</p>
+<p>Requires the database to be empty.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.drop_indices_constraints">
+<span class="sig-name descname"><span class="pre">drop_indices_constraints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.drop_indices_constraints" title="Permalink to this definition"></a></dt>
+<dd><p>Drops all indices and constraints in the current database.</p>
+<p>Requires the database to be empty.</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.edge_count">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">edge_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#neo4j_utils.Driver.edge_count" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">edge_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#neo4j_utils.Driver.edge_count" title="Permalink to this definition"></a></dt>
 <dd><p>Number of edges in the database.</p>
 </dd></dl>
 
@@ -250,13 +264,13 @@ running against the default database fails.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.node_count">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">node_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#neo4j_utils.Driver.node_count" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">node_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#neo4j_utils.Driver.node_count" title="Permalink to this definition"></a></dt>
 <dd><p>Number of nodes in the database.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.passwd">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">passwd</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#neo4j_utils.Driver.passwd" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">passwd</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#neo4j_utils.Driver.passwd" title="Permalink to this definition"></a></dt>
 <dd><p>Password for the currently active connection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -397,7 +411,7 @@ create or re-use another <cite>Driver</cite> object.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.user">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#neo4j_utils.Driver.user" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">user</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#neo4j_utils.Driver.user" title="Permalink to this definition"></a></dt>
 <dd><p>User for the currently active connection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
