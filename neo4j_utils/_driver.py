@@ -67,6 +67,7 @@ class Driver:
         config: CONFIG_FILES | None=None,
         fetch_size: int=1000,
         wipe: bool=False,
+        multi_db: bool=True, # legacy parameter for pre-4.0 DBs
         **kwargs
     ):
         """
@@ -104,6 +105,7 @@ class Driver:
         }
         self._config_file = config
         self._drivers = {}
+        self.multi_db = multi_db
 
         if self.driver:
 
@@ -416,17 +418,24 @@ class Driver:
         db = db or self._db_config['db'] or neo4j.DEFAULT_DATABASE
         fetch_size = fetch_size or self._db_config['fetch_size']
 
-        session_args = {
-            'database': db,
-            'fetch_size': fetch_size,
-            'default_access_mode':
-                neo4j.WRITE_ACCESS if write else neo4j.READ_ACCESS,
-        }
+        if self.multi_db:
+            session_args = {
+                'database': db,
+                'fetch_size': fetch_size,
+                'default_access_mode':
+                    neo4j.WRITE_ACCESS if write else neo4j.READ_ACCESS,
+            }
+        else:
+            session_args = {
+                'fetch_size': fetch_size,
+                'default_access_mode':
+                    neo4j.WRITE_ACCESS if write else neo4j.READ_ACCESS,
+            }
 
         try:
 
             with self.session(**session_args) as session:
-
+                
                 res = session.run(query, **kwargs)
 
                 return res.data(), res.consume()
