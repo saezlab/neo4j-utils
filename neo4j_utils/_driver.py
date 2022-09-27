@@ -780,6 +780,24 @@ class Driver:
                 self.db_connect()
 
 
+    @property
+    def indices(self) -> list | None:
+        """
+        List of indices in the current database.
+        """
+
+        return self._list_indices('indices')
+
+
+    @property
+    def constraints(self) -> list | None:
+        """
+        List of constraints in the current database.
+        """
+
+        return self._list_indices('constraints')
+
+
     def drop_indices_constraints(self):
         """
         Drops all indices and constraints in the current database.
@@ -817,24 +835,7 @@ class Driver:
             what: Literal['indexes', 'indices', 'constraints'] = 'constraints',
     ):
 
-        what_s = {
-            'indexes': 'INDEX',
-            'indices': 'INDEX',
-            'constraints': 'CONSTRAINT',
-        }
-
-        what_u = what_s.get(what, None)
-
-        if not what_u:
-
-            msg = (
-                '_drop_indices: allowed keywords are: "indexes", '
-                f'"indices" or "constraints", not `{what}`.'
-            )
-
-            logger.log_error(msg)
-
-            raise ValueError(msg)
+        what_u = self._idx_cstr_synonyms(what)
 
         with self.session() as s:
 
@@ -855,6 +856,49 @@ class Driver:
             except (neo4j_exc.Neo4jError, neo4j_exc.DriverError) as e:
 
                 logger.error(f'Failed to run query: {printer.error_str(e)}')
+
+
+    def _list_indices(
+        self,
+        what: Literal['indexes', 'indices', 'constraints'] = 'constraints',
+    ) -> list | None:
+
+        what_u = self._idx_cstr_synonyms(what)
+
+        with self.session() as s:
+
+            try:
+
+                return list(s.run(f'SHOW {what_u.upper()};'))
+
+            except (neo4j_exc.Neo4jError, neo4j_exc.DriverError) as e:
+
+                logger.error(f'Failed to run query: {printer.error_str(e)}')
+
+
+    @staticmethod
+    def _idx_cstr_synonyms(what: str) -> str | None:
+
+        what_s = {
+            'indexes': 'INDEX',
+            'indices': 'INDEX',
+            'constraints': 'CONSTRAINT',
+        }
+
+        what_u = what_s.get(what, None)
+
+        if not what_u:
+
+            msg = (
+                'Allowed keywords are: "indexes", '
+                f'"indices" or "constraints", not `{what}`.'
+            )
+
+            logger.log_error(msg)
+
+            raise ValueError(msg)
+
+        return what_u
 
 
     @property
