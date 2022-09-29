@@ -4,6 +4,7 @@ import random
 import string
 import math
 import itertools
+import collections
 
 import tqdm
 
@@ -163,13 +164,31 @@ def by_label(nodes):
     Sorts nodes by their labels.
     """
 
-    return dict(
-        (
-            label,
-            [n for n in nodes if n == label],
-        )
-        for label in {n['label'] for n in nodes}
-    )
+    return _group_by(nodes, 'label')
+
+
+def by_type(rels):
+    """
+    Sorts relations by their types and the types of the endpoints.
+    """
+
+    return _group_by(rels, 'rel_type', 'source_id', 'target_id')
+
+
+def _group_by(items, *keys):
+
+    result = collections.defaultdict(list)
+
+    keys = sorted(keys)
+
+    for it in items:
+
+        key = tuple(it[k] for k in keys)
+        key = key[0] if len(key) == 1 else key
+
+        result[key].append(it)
+
+    return dict(result)
 
 
 def insert0(driver, data = None, batch_size = 1.5e4, **kwargs):
@@ -287,48 +306,77 @@ def insert2(driver, data = None, batch_size = 1.5e4, **kwargs):
         )
 
 
-def insert3(driver, data = None, batch_size = 1.5e4, **kwargs):
+def insert3(driver, edges = None, nodes = None, batch_size = 1.5e4, **kwargs):
 
-    data = data or random_rels(**kwargs)
+    if not nodes or not edges:
 
-    nodes = list(sorted(
-        {d['source_id'] for d in data} |
-        {d['target_id'] for d in data}
-    ))
+        print('Generating random data')
+        edges, nodes = random_rels(**kwargs)
 
+    print('Grouping nodes and relations')
+    nodes = by_label(nodes)
+    edges = by_type(edges)
+
+    print('Creating indices')
     driver.query('CREATE INDEX node_id IF NOT EXISTS FOR (n:Anything) ON (n.ID)')
     driver.query('CREATE INDEX rel_id IF NOT EXISTS FOR ()-[r:Rel]->() ON (r.ID)')
     driver.query('CALL db.awaitIndexes()')
 
-    for batch in chunks(nodes, batch_size):
+    node_bar = tqdm.tqdm(
+        desc = 'Inserting nodes',
+        total = sum(map(len, nodes.values())),
+    )
 
-        batch = [{'node_id': x} for x in batch]
+    for label, _nodes in nodes.items():
 
-        driver.query(
-            """
-            UNWIND $entities AS ent
-            MERGE (n:Anything {ID: ent.node_id})
-            """,
-            parameters = {'entities': batch},
-        )
+        _nodes = sorted(_nodes, key = lambda n: n['ID'])
 
-    data = list(sorted(
-        data,
-        key = lambda r: (r['source_id'], r['target_id'])
-    ))
+        for batch in chunks(_nodes, batch_size, pbar = False):
 
-    for batch in chunks(data, batch_size):
+            node_bar.set_description(f'Inserting {len(batch)} nodes')
 
-        driver.query(
-            """
-            UNWIND $entities AS ent
-            MATCH (s:Anything {ID: ent.source_id})
-            MATCH (t:Anything {ID: ent.target_id})
-            MERGE (s)-[rel:Rel]->(t)
-            set rel.ID = ent.ID
-            """,
-            parameters = {'entities': batch},
-        )
+            driver.query(
+                'UNWIND $entities AS ent\n'
+                f'MERGE (n:{label} '
+                '{ID: ent.ID, '
+                'prop0: ent.prop0, '
+                'prop1: ent.prop1, '
+                'prop2: ent.prop2})\n',
+                parameters = {'entities': batch},
+            )
+
+            node_bar.update(n = len(batch))
+
+    node_bar.close()
+
+    edge_bar = tqdm.tqdm(
+        desc = 'Inserting relations',
+        total = sum(map(len, edges.values())),
+    )
+
+    for (rel_type, s_label, t_label), _edges in edges.items():
+
+        _edges = sorted(_edges, key = lambda e: e['ID'])
+
+        for batch in chunks(_edges, batch_size, pbar = False):
+
+            edge_bar.set_description(f'Inserting {len(batch)} relations')
+
+            driver.query(
+                'UNWIND $entities AS ent\n'
+                f'MATCH (s:{s_label} {{ID: ent.source_id}})\n'
+                f'MATCH (t:{t_label} {{ID: ent.target_id}})\n'
+                f'MERGE (s)-[rel:{rel_type}]->(t)\n'
+                'SET\n'
+                'rel.ID = ent.ID,\n'
+                'rel.prop0 = ent.prop0,\n'
+                'rel.prop1 = ent.prop1',
+                parameters = {'entities': batch},
+            )
+
+            edge_bar.update(n = len(batch))
+
+    edge_bar.close()
 
     print('Creating rel text index.')
     driver.query('CREATE TEXT INDEX rel_it IF NOT EXISTS FOR ()-[r:Rel]->() ON (r.ID)')
@@ -338,7 +386,9 @@ def insert3(driver, data = None, batch_size = 1.5e4, **kwargs):
 def main(driver_args = None, **kwargs):
 
     driver = neo4j_utils.Driver(**(driver_args or {}))
+    print('Wiping database')
     driver.wipe_db()
+    print('Dropping indices')
     driver.drop_indices_constraints()
 
     insert3(driver, **kwargs)
