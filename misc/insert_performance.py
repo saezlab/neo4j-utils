@@ -43,10 +43,14 @@ def unique_labels(n, **kwargs):
     return list(result)[:int(n)]
 
 
-def random_nodes(n = 1e5, nlabels = 1) -> list[dict[str, str]]:
+def random_nodes(n = 1e5, nlabels = 1, nprops = 0) -> list[dict[str, str]]:
     """
     A list of dicts, each dict represents a node, consisting of an `ID`
     and a `label`.
+
+    Args:
+        nprops:
+            Number of node properties.
     """
 
     labels = {
@@ -56,22 +60,28 @@ def random_nodes(n = 1e5, nlabels = 1) -> list[dict[str, str]]:
 
     result = []
 
-    ids = k_ids(n, nlabels)
+    props = [
+        k_ids(n, nlabels)
+        for propid in range(nprops + 1)
+    ]
 
-    for label, _ids in zip(labels, ids):
+    prop_names = [f'prop{i}' for i in range(nprops)]
+
+    for label, *_props in zip(labels, *props):
 
         result.extend(
-            {
-                'label': label,
-                'ID': _id,
-            }
-            for _id in _ids
+            dict(
+                label = label,
+                ID = _prop[0],
+                **dict(zip(prop_names, _prop[1:]))
+            )
+            for _prop in zip(*_props)
         )
 
     return result[:int(n)]
 
 
-def random_rels(nrels = 2e6, nnodes = 1e6, ntypes = 1, nlabels = 1):
+def random_rels(nrels = 2e6, nnodes = 1e6, ntypes = 1, nlabels = 1, nnprops = 0):
     """
     A list of dicts, each represents a relation with the labels and IDs of
     the source and target nodes, the ID and type of the relation.
@@ -85,7 +95,7 @@ def random_rels(nrels = 2e6, nnodes = 1e6, ntypes = 1, nlabels = 1):
     nodes = (
         nnodes
             if isinstance(nnodes, list) else
-        random_nodes(nnodes, nlabels = nlabels)
+        random_nodes(nnodes, nlabels = nlabels, nprops = nnprops)
     )
 
     ids = k_ids(nrels, ntypes)
@@ -141,6 +151,19 @@ def chunks(lst, n, pbar = True):
 
         yield lst[i:i + int(n)]
 
+
+def by_label(nodes):
+    """
+    Sorts nodes by their labels.
+    """
+
+    return dict(
+        (
+            label,
+            [n for n in nodes if n == label],
+        )
+        for label in {n['label'] for n in nodes}
+    )
 
 
 def insert0(driver, data = None, batch_size = 1.5e4, **kwargs):
@@ -258,10 +281,58 @@ def insert2(driver, data = None, batch_size = 1.5e4, **kwargs):
         )
 
 
+def insert3(driver, data = None, batch_size = 1.5e4, **kwargs):
+
+    data = data or random_rels(**kwargs)
+
+    nodes = list(sorted(
+        {d['source_id'] for d in data} |
+        {d['target_id'] for d in data}
+    ))
+
+    driver.query('CREATE INDEX node_id IF NOT EXISTS FOR (n:Anything) ON (n.ID)')
+    driver.query('CREATE INDEX rel_id IF NOT EXISTS FOR ()-[r:Rel]->() ON (r.ID)')
+    driver.query('CALL db.awaitIndexes()')
+
+    for batch in chunks(nodes, batch_size):
+
+        batch = [{'node_id': x} for x in batch]
+
+        driver.query(
+            """
+            UNWIND $entities AS ent
+            MERGE (n:Anything {ID: ent.node_id})
+            """,
+            parameters = {'entities': batch},
+        )
+
+    data = list(sorted(
+        data,
+        key = lambda r: (r['source_id'], r['target_id'])
+    ))
+
+    for batch in chunks(data, batch_size):
+
+        driver.query(
+            """
+            UNWIND $entities AS ent
+            MATCH (s:Anything {ID: ent.source_id})
+            MATCH (t:Anything {ID: ent.target_id})
+            MERGE (s)-[rel:Rel]->(t)
+            set rel.ID = ent.ID
+            """,
+            parameters = {'entities': batch},
+        )
+
+    print('Creating rel text index.')
+    driver.query('CREATE TEXT INDEX rel_it IF NOT EXISTS FOR ()-[r:Rel]->() ON (r.ID)')
+    driver.query('CALL db.awaitIndexes()')
+
+
 def main(driver_args = None, **kwargs):
 
     driver = neo4j_utils.Driver(**(driver_args or {}))
     driver.wipe_db()
     driver.drop_indices_constraints()
 
-    insert1(driver, **kwargs)
+    insert3(driver, **kwargs)
