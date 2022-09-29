@@ -3,6 +3,7 @@
 import random
 import string
 import math
+import itertools
 
 import tqdm
 
@@ -81,7 +82,14 @@ def random_nodes(n = 1e5, nlabels = 1, nprops = 0) -> list[dict[str, str]]:
     return result[:int(n)]
 
 
-def random_rels(nrels = 2e6, nnodes = 1e6, ntypes = 1, nlabels = 1, nnprops = 0):
+def random_rels(
+        nrels = 2e6,
+        nnodes = 1e6,
+        ntypes = 1,
+        nlabels = 1,
+        nnprops = 0,
+        nrprops = 0,
+    ):
     """
     A list of dicts, each represents a relation with the labels and IDs of
     the source and target nodes, the ID and type of the relation.
@@ -98,31 +106,29 @@ def random_rels(nrels = 2e6, nnodes = 1e6, ntypes = 1, nlabels = 1, nnprops = 0)
         random_nodes(nnodes, nlabels = nlabels, nprops = nnprops)
     )
 
-    ids = k_ids(nrels, ntypes)
+    edges = random_nodes(nrels, nlabels = ntypes, nprops = nrprops)
 
     result = []
+    counts = [10] * len(nodes)
 
-    for reltype, _ids in zip(types, ids):
-
-        counts = [10] * len(nodes)
-
-        result.extend(
-            {
-                'source_label': anode['label'],
-                'target_label': bnode['label'],
-                'source_id': anode['ID'],
-                'target_id': bnode['ID'],
-                'ID': _id,
-                'rel_type': reltype,
-            }
-            for anode, bnode, _id in zip(
-                random.sample(nodes, len(_ids), counts = counts),
-                random.sample(nodes, len(_ids), counts = counts),
-                _ids,
-            )
+    result = [
+        dict(
+            source_label = anode['label'],
+            target_label = bnode['label'],
+            source_id = anode['ID'],
+            target_id = bnode['ID'],
+            ID = edge['ID'],
+            rel_type = edge['label'],
+            **dict(i for i in edge.items() if i[0].startswith('prop'))
         )
+        for edge, anode, bnode in zip(
+            edges,
+            random.sample(nodes, len(edges), counts = counts),
+            random.sample(nodes, len(edges), counts = counts),
+        )
+    ]
 
-    return result
+    return result, nodes
 
 
 def k_ids(total, k = 1, **kwargs) -> list[list[str]]:
