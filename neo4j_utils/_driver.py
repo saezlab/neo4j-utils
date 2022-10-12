@@ -1145,3 +1145,15 @@ class Driver:
             )[0] or
             []
         )
+
+
+    @property
+    def prop_keys(self):
+        """
+        Property keys defined in the database.
+        """
+
+        return [
+            i['propertyKey']
+            for i in (self.query('CALL db.propertyKeys')[0] or [])
+        ]
