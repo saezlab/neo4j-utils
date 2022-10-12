@@ -172,7 +172,7 @@ def by_type(rels):
     Sorts relations by their types and the types of the endpoints.
     """
 
-    return _group_by(rels, 'rel_type', 'source_id', 'target_id')
+    return _group_by(rels, 'rel_type', 'source_label', 'target_label')
 
 
 def _group_by(items, *keys):
@@ -317,9 +317,23 @@ def insert3(driver, edges = None, nodes = None, batch_size = 1.5e4, **kwargs):
     nodes = by_label(nodes)
     edges = by_type(edges)
 
-    print('Creating indices')
-    driver.query('CREATE INDEX node_id IF NOT EXISTS FOR (n:Anything) ON (n.ID)')
-    driver.query('CREATE INDEX rel_id IF NOT EXISTS FOR ()-[r:Rel]->() ON (r.ID)')
+    print('Creating node indices')
+    for label in nodes.keys():
+
+        driver.query(
+            f'CREATE INDEX node_id_{label.lower()} IF NOT EXISTS '
+            f'FOR (n:{label}) ON (n.ID)'
+        )
+
+    print('Creating relation indices')
+    for rtype in edges.keys():
+
+        driver.query(
+            f'CREATE INDEX rel_id_{rtype[0].lower()} IF NOT EXISTS '
+            f'FOR ()-[r:{rtype[0]}]->() ON (r.ID)'
+        )
+
+    print('Deploying indices')
     driver.query('CALL db.awaitIndexes()')
 
     node_bar = tqdm.tqdm(
