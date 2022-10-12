@@ -338,7 +338,7 @@ class Driver:
         profile: bool=False,
         fallback_db: str | None = None,
         **kwargs,
-    ):
+    ) -> tuple[list[dict] | None, neo4j.work.summary.ResultSummary | None]:
         """
         Run a CYPHER query.
 
@@ -435,7 +435,7 @@ class Driver:
         try:
 
             with self.session(**session_args) as session:
-                
+
                 res = session.run(query, **kwargs)
 
                 return res.data(), res.consume()
@@ -1081,4 +1081,31 @@ class Driver:
             self.driver._pool.address[0] if self.driver else 'unknown',
             self.driver._pool.address[1] if self.driver else 0,
             self.user or 'unknown',
+        )
+
+
+    @property
+    def node_labels(self) -> list[str]:
+        """
+        Node labels registered in the database. Presence of a label does
+        not guarantee any instance of it exists in the database.
+        """
+
+        return [
+            i['label']
+            for i in (self.query('CALL db.labels') or ((),))[0]
+        ]
+
+
+    @property
+    def label_counts(self):
+
+        return dict(
+            (
+                r['LABELS(n)'][0],
+                r['COUNT(*)']
+            )
+            for r in
+            self.query('MATCH (n) RETURN DISTINCT LABELS(n), COUNT(*);')[0] or
+            []
         )
