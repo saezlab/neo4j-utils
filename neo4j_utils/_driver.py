@@ -1087,18 +1087,21 @@ class Driver:
     @property
     def node_labels(self) -> list[str]:
         """
-        Node labels registered in the database. Presence of a label does
+        Node labels defined in the database. Presence of a label does
         not guarantee any instance of it exists in the database.
         """
 
         return [
             i['label']
-            for i in (self.query('CALL db.labels') or ((),))[0]
+            for i in (self.query('CALL db.labels')[0] or [])
         ]
 
 
     @property
     def label_counts(self):
+        """
+        Count the nodes by labels.
+        """
 
         return dict(
             (
@@ -1106,6 +1109,39 @@ class Driver:
                 r['COUNT(*)']
             )
             for r in
-            self.query('MATCH (n) RETURN DISTINCT LABELS(n), COUNT(*);')[0] or
+            self.query(
+                'MATCH (n) RETURN DISTINCT LABELS(n), COUNT(*);'
+            )[0] or
+            []
+        )
+
+
+    @property
+    def rel_types(self) -> list[str]:
+        """
+        Relationship types defined in the database.
+        """
+
+        return [
+            i['relationshipType']
+            for i in (self.query('CALL db.relationshipTypes')[0] or [])
+        ]
+
+
+    @property
+    def rel_type_counts(self):
+        """
+        Count the relationships by types.
+        """
+
+        return dict(
+            (
+                r['TYPE(r)'],
+                r['COUNT(*)']
+            )
+            for r in
+            self.query(
+                'MATCH ()-[r]->() RETURN DISTINCT TYPE(r), COUNT(*);'
+            )[0] or
             []
         )
