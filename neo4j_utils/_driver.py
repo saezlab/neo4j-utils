@@ -1195,9 +1195,9 @@ class Driver:
 
 
     @property
-    def has_apoc(self, db: str | None = None) -> bool:
+    def apoc_version(self) -> str | None:
         """
-        Tells if APOC is available in the current database.
+        Version of the APOC plugin available in the current database.
         """
 
         db = db or self._db_config['db'] or neo4j.DEFAULT_DATABASE
@@ -1206,13 +1206,22 @@ class Driver:
 
             with self.session(database = db) as session:
 
-                res = session.run('CALL apoc.math.round(3.14)')
+                res = session.run('RETURN apoc.version() AS output;')
 
-                return True
+                return res.data()[0]['output']
 
         except neo4j_exc.ClientError:
 
-            return False
+            return None
+
+
+    @property
+    def has_apoc(self) -> bool:
+        """
+        Tells if APOC is available in the current database.
+        """
+
+        return bool(self.apoc_version)
 
 
     def write_config(self, path: str = CONFIG_FILES.__args__[0]):
