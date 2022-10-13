@@ -1214,3 +1214,12 @@ class Driver:
 
             return False
 
+
+    def write_config(self, path: str = CONFIG_FILES.__args__[0]):
+        """
+        Write the current config into file.
+        """
+
+        with open(path, 'w') as fp:
+
+            yaml.safe_dump(self._db_config, fp)
