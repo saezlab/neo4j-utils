@@ -730,12 +730,12 @@ class Driver:
     def wipe_db(self):
         """
         Used in initialisation, deletes all nodes and edges and drops
-        all constraints.
+        all indices and constraints.
         """
 
         self.query('MATCH (n) DETACH DELETE n;')
 
-        self.drop_constraints()
+        self.drop_indices_constraints()
 
 
     def ensure_db(self):
@@ -1157,3 +1157,25 @@ class Driver:
             i['propertyKey']
             for i in (self.query('CALL db.propertyKeys')[0] or [])
         ]
+
+
+    @property
+    def has_apoc(self, db: str | None = None) -> bool:
+        """
+        Tells if APOC is available in the current database.
+        """
+
+        db = db or self._db_config['db'] or neo4j.DEFAULT_DATABASE
+
+        try:
+
+            with self.session(database = db) as session:
+
+                res = session.run('CALL apoc.math.round(3.14)')
+
+                return True
+
+        except neo4j_exc.ClientError:
+
+            return False
+
