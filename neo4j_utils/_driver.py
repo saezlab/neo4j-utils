@@ -35,12 +35,18 @@ import neo4j.exceptions as neo4j_exc
 
 import neo4j_utils._print as printer
 
-__all__ = ['CONFIG_FILES', 'DEFAULT_PASSWD', 'DEFAULT_USER', 'Driver']
+__all__ = ['CONFIG_FILES', 'DEFAULT_CONFIG', 'Driver']
 
 
 CONFIG_FILES = Literal['neo4j.yaml', 'neo4j.yml']
-DEFAULT_USER = 'neo4j'
-DEFAULT_PASSWD = 'neo4j'
+DEFAULT_CONFIG = dict(
+    user = 'neo4j',
+    passwd = 'neo4j',
+    db = 'neo4j',
+    uri = 'neo4j://localhost:7687',
+    fetch_size = 1000,
+    raise_errors = False,
+)
 
 
 class Driver:
@@ -66,6 +72,7 @@ class Driver:
         db_passwd: str | None=None,
         config: CONFIG_FILES | None=None,
         fetch_size: int=1000,
+        raise_errors: bool | None = None,
         wipe: bool=False,
         multi_db: bool=True, # legacy parameter for pre-4.0 DBs
         **kwargs
@@ -85,6 +92,9 @@ class Driver:
                 Password of the Neo4j user.
             fetch_size:
                 Optional; the fetch size to use in database transactions.
+            raise_errors:
+                Raise the errors instead of turning them into log messages
+                and returning `None`.
             config:
                 Path to a YAML config file which provides the URI, user name
                 and password.
@@ -102,6 +112,7 @@ class Driver:
             'passwd': db_passwd,
             'db': db_name,
             'fetch_size': fetch_size,
+            'raise_errors': raise_errors,
         }
         self._config_file = config
         self._drivers = {}
@@ -166,7 +177,7 @@ class Driver:
             'no connection',
             'db offline',
             'db online',
-    ]:
+        ]:
 
         if not self.driver:
 
@@ -180,7 +191,7 @@ class Driver:
     @property
     def uri(self):
 
-        return self._db_config.get('uri', None) or 'neo4j://localhost:7687'
+        return self._db_config.get('uri', 0) or DEFAULT_CONFIG['uri']
 
 
     @property
@@ -189,8 +200,8 @@ class Driver:
         return (
             tuple(self._db_config.get('auth', ())) or
             (
-                self._db_config.get('user', None) or DEFAULT_USER,
-                self._db_config.get('passwd', None) or DEFAULT_PASSWD,
+                self._db_config.get('user', 0) or DEFAULT_CONFIG['user'],
+                self._db_config.get('passwd', 0) or DEFAULT_CONFIG['passwd'],
             )
         )
 
@@ -243,6 +254,8 @@ class Driver:
 
             logger.warn('No config available, falling back to defaults.')
 
+        self._config_from_defaults()
+
 
     def _config_from_driver(self):
 
@@ -260,6 +273,20 @@ class Driver:
         for k, v in from_driver.items():
 
             self._db_config[k] = self._db_config.get(k, v) or v
+
+        self._config_from_defaults()
+
+
+    def _config_from_defaults(self):
+        """
+        Populates missing config items by their default values.
+        """
+
+        for k, v in DEFAULT_CONFIG.items():
+
+            if self._db_config.get(k, None) is None:
+
+                self._db_config[k] = v
 
 
     def _register_current_driver(self):
@@ -337,6 +364,7 @@ class Driver:
         explain: bool=False,
         profile: bool=False,
         fallback_db: str | None = None,
+        raise_errors: bool | None = None,
         **kwargs,
     ) -> tuple[list[dict] | None, neo4j.work.summary.ResultSummary | None]:
         """
@@ -417,6 +445,11 @@ class Driver:
 
         db = db or self._db_config['db'] or neo4j.DEFAULT_DATABASE
         fetch_size = fetch_size or self._db_config['fetch_size']
+        raise_errors = (
+            self._db_config['raise_errors']
+                if raise_errors is None else
+            raise_errors
+        )
 
         if self.multi_db:
             session_args = {
@@ -462,9 +495,11 @@ class Driver:
 
             else:
 
-                logger.error(
-                    f'Failed to run query: {printer.error_str(e)}',
-                )
+                logger.error(f'Failed to run query: {printer.error_str(e)}')
+
+                if raise_errors:
+
+                    raise
 
                 return None, None
 
