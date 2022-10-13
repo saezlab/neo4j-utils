@@ -392,10 +392,6 @@ def insert3(driver, edges = None, nodes = None, batch_size = 1.5e4, **kwargs):
 
     edge_bar.close()
 
-    print('Creating rel text index.')
-    driver.query('CREATE TEXT INDEX rel_it IF NOT EXISTS FOR ()-[r:Rel]->() ON (r.ID)')
-    driver.query('CALL db.awaitIndexes()')
-
 
 def main(driver_args = None, **kwargs):
 
