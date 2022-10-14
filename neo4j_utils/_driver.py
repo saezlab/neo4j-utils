@@ -63,6 +63,8 @@ class Driver:
         * By a YAML config file
     """
 
+    _connect_essential = ('uri', 'user', 'passwd')
+
     def __init__(
         self,
         driver: neo4j.Driver | Driver | None=None,
@@ -153,9 +155,7 @@ class Driver:
         current configuration.
         """
 
-        connect_essential = ('uri', 'user', 'passwd')
-
-        if not all(self._db_config.get(k, None) for k in connect_essential):
+        if not self._connect_param_available:
 
             self.read_config()
 
@@ -172,12 +172,25 @@ class Driver:
 
 
     @property
+    def _connect_param_available(self):
+        """
+        Are all parameters available that are essential for establishing
+        a connection?
+        """
+
+        return all(
+            self._db_config.get(k, None)
+            for k in self._connect_essential
+        )
+
+
+    @property
     def status(self) -> Literal[
             'no driver',
             'no connection',
             'db offline',
             'db online',
-        ]:
+    ]:
 
         if not self.driver:
 
@@ -250,7 +263,7 @@ class Driver:
 
                     self._db_config[k] = v
 
-        else:
+        elif not self._connect_param_available:
 
             logger.warn('No config available, falling back to defaults.')
 
@@ -600,6 +613,18 @@ class Driver:
         """
 
         return self._db_config['db'] or self._driver_con_db or self.home_db
+
+
+    @current_db.setter
+    def current_db(self, name: str):
+        """
+        Args:
+            name:
+                Name of a database.
+        """
+
+        self._db_config['db'] = name
+        self.db_connect()
 
 
     @property
@@ -1141,11 +1166,11 @@ class Driver:
         return dict(
             (
                 r['LABELS(n)'][0],
-                r['COUNT(*)']
+                r['COUNT(*)'],
             )
             for r in
             self.query(
-                'MATCH (n) RETURN DISTINCT LABELS(n), COUNT(*);'
+                'MATCH (n) RETURN DISTINCT LABELS(n), COUNT(*);',
             )[0] or
             []
         )
@@ -1172,11 +1197,11 @@ class Driver:
         return dict(
             (
                 r['TYPE(r)'],
-                r['COUNT(*)']
+                r['COUNT(*)'],
             )
             for r in
             self.query(
-                'MATCH ()-[r]->() RETURN DISTINCT TYPE(r), COUNT(*);'
+                'MATCH ()-[r]->() RETURN DISTINCT TYPE(r), COUNT(*);',
             )[0] or
             []
         )
