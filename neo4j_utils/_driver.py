@@ -22,7 +22,7 @@ from ._logger import logger
 
 logger.debug(f'Loading module {__name__.strip("_")}.')
 
-from typing import Union, Literal, Optional  # noqa: E402
+from typing import Literal
 import os
 import re
 import warnings
@@ -39,47 +39,49 @@ __all__ = ['CONFIG_FILES', 'DEFAULT_CONFIG', 'Driver']
 
 
 CONFIG_FILES = Literal['neo4j.yaml', 'neo4j.yml']
-DEFAULT_CONFIG = dict(
-    user = 'neo4j',
-    passwd = 'neo4j',
-    db = 'neo4j',
-    uri = 'neo4j://localhost:7687',
-    fetch_size = 1000,
-    raise_errors = False,
-)
+DEFAULT_CONFIG = {
+    'user': 'neo4j',
+    'passwd': 'neo4j',
+    'db': 'neo4j',
+    'uri': 'neo4j://localhost:7687',
+    'fetch_size': 1000,
+    'raise_errors': False,
+}
 
 
 class Driver:
     """
     Manage the connection to the Neo4j server.
-
-    Establishes the connection and executes queries. A wrapper around
-    the `Driver` object from the :py:mod:`neo4j` module, which is stored
-    in the :py:attr:`driver` attribute.
-
-    The connection can be defined in three ways:
-        * Providing a ready ``neo4j.Driver`` instance
-        * By URI and authentication data
-        * By a YAML config file
     """
 
     _connect_essential = ('uri', 'user', 'passwd')
 
     def __init__(
-        self,
-        driver: neo4j.Driver | Driver | None=None,
-        db_name: str | None=None,
-        db_uri: str | None=None,
-        db_user: str | None=None,
-        db_passwd: str | None=None,
-        config: CONFIG_FILES | None=None,
-        fetch_size: int=1000,
-        raise_errors: bool | None = None,
-        wipe: bool=False,
-        multi_db: bool=True, # legacy parameter for pre-4.0 DBs
-        **kwargs
+            self,
+            driver: neo4j.Driver | Driver | None = None,
+            db_name: str | None = None,
+            db_uri: str | None = None,
+            db_user: str | None = None,
+            db_passwd: str | None = None,
+            config: CONFIG_FILES | None = None,
+            fetch_size: int = 1000,
+            raise_errors: bool | None = None,
+            wipe: bool = False,
+            multi_db: bool = True,  # legacy parameter for pre-4.0 DBs
+            **kwargs
     ):
         """
+        Create a Driver object with database connection and runtime parameters.
+
+        Establishes the connection and executes queries. A wrapper around
+        the `Driver` object from the :py:mod:`neo4j` module, which is stored
+        in the :py:attr:`driver` attribute.
+
+        The connection can be defined in three ways:
+            * Providing a ready ``neo4j.Driver`` instance
+            * By URI and authentication data
+            * By a YAML config file
+
         Args:
             driver:
                 A ``neo4j.Driver`` instance, created by, for example,
@@ -98,8 +100,8 @@ class Driver:
                 Raise the errors instead of turning them into log messages
                 and returning `None`.
             config:
-                Path to a YAML config file which provides the URI, user name
-                and password.
+                Path to a YAML config file which provides the URI, user
+                name and password.
             wipe:
                 Wipe the database after connection, ensuring the data is
                 loaded into an empty database.
@@ -134,7 +136,7 @@ class Driver:
             )
             self.db_connect()
 
-        #self.ensure_db()
+        self.ensure_db()
 
 
     def reload(self):
@@ -146,11 +148,13 @@ class Driver:
         mod = __import__(modname, fromlist=[modname.split('.')[0]])
         imp.reload(mod)
         new = getattr(mod, self.__class__.__name__)
-        setattr(self, '__class__', new)
+        self.__class__ = new
 
 
     def db_connect(self):
         """
+        Connect to the database server.
+
         Creates a database connection manager (driver) based on the
         current configuration.
         """
@@ -159,7 +163,7 @@ class Driver:
 
             self.read_config()
 
-        con_param = printer.dict_str(dict(uri = self.uri, auth = self.auth))
+        con_param = printer.dict_str({'uri': self.uri, 'auth': self.auth})
         logger.info(f'Attempting to connect: {con_param}')
 
         self.driver = neo4j.GraphDatabase.driver(
@@ -174,6 +178,8 @@ class Driver:
     @property
     def _connect_param_available(self):
         """
+        Check for essential connection parameters.
+
         Are all parameters available that are essential for establishing
         a connection?
         """
@@ -191,6 +197,9 @@ class Driver:
             'db offline',
             'db online',
     ]:
+        """
+        State of this driver object and its current database.
+        """
 
         if not self.driver:
 
@@ -203,12 +212,18 @@ class Driver:
 
     @property
     def uri(self):
+        """
+        Database server URI (from config or built-in default).
+        """
 
         return self._db_config.get('uri', 0) or DEFAULT_CONFIG['uri']
 
 
     @property
     def auth(self):
+        """
+        Database server user and password (from config or built-in default).
+        """
 
         return (
             tuple(self._db_config.get('auth', ())) or
@@ -219,8 +234,10 @@ class Driver:
         )
 
 
-    def read_config(self, section: str | None=None):
+    def read_config(self, section: str | None = None):
         """
+        Read the configuration from a YAML file.
+
         Populates the instance configuration from one section of a YAML
         config file.
         """
@@ -272,16 +289,16 @@ class Driver:
 
     def _config_from_driver(self):
 
-        from_driver = dict(
-            uri = self._uri(
+        from_driver = {
+            'uri': self._uri(
                 host = self.driver.default_host,
                 port = self.driver.default_port,
             ),
-            db = self.current_db,
-            fetch_size = self.driver._default_workspace_config.fetch_size,
-            user = self.user,
-            passwd = self.passwd,
-        )
+            'db': self.current_db,
+            'fetch_size': self.driver._default_workspace_config.fetch_size,
+            'user': self.user,
+            'passwd': self.passwd,
+        }
 
         for k, v in from_driver.items():
 
@@ -310,7 +327,7 @@ class Driver:
     @staticmethod
     def _uri(
             host: str = 'localhost',
-            port: str |int = 7687,
+            port: str | int = 7687,
             protocol: str = 'neo4j',
     ) -> str:
 
@@ -334,12 +351,18 @@ class Driver:
 
     @property
     def home_db(self) -> str | None:
+        """
+        Home database of the current user.
+        """
 
         return self._db_name()
 
 
     @property
     def default_db(self) -> str | None:
+        """
+        Default database of the server.
+        """
 
         return self._db_name('DEFAULT')
 
@@ -369,16 +392,16 @@ class Driver:
 
 
     def query(
-        self,
-        query: str,
-        db: str | None=None,
-        fetch_size: int | None=None,
-        write: bool=True,  # route to write server (default)
-        explain: bool=False,
-        profile: bool=False,
-        fallback_db: str | None = None,
-        raise_errors: bool | None = None,
-        **kwargs,
+            self,
+            query: str,
+            db: str | None = None,
+            fetch_size: int | None = None,
+            write: bool = True,  # route to write server (default)
+            explain: bool = False,
+            profile: bool = False,
+            fallback_db: str | None = None,
+            raise_errors: bool | None = None,
+            **kwargs,
     ) -> tuple[list[dict] | None, neo4j.work.summary.ResultSummary | None]:
         """
         Run a CYPHER query.
@@ -518,16 +541,15 @@ class Driver:
 
 
     def explain(
-        self,
-        query,
-        db=None,
-        fetch_size=None,
-        write=True,
-        **kwargs,
+            self,
+            query,
+            db=None,
+            fetch_size=None,
+            write=True,
+            **kwargs,
     ):
         """
-        Wrapper for EXPLAIN function query to bring summary in
-        readable form.
+        Explain a query and pretty print the output.
 
         CAVE: Only handles linear profiles (no branching) as of now.
         TODO include branching as in profile()
@@ -551,16 +573,15 @@ class Driver:
 
 
     def profile(
-        self,
-        query,
-        db=None,
-        fetch_size=None,
-        write=True,
-        **kwargs,
+            self,
+            query,
+            db=None,
+            fetch_size=None,
+            write=True,
+            **kwargs,
     ):
         """
-        Wrapper for PROFILE function query to bring summary in
-        readable form.
+        Profile a query and pretty print the output.
 
         Args:
             query (str): a valid Cypher query (see :meth:`query()`)
@@ -605,8 +626,9 @@ class Driver:
     @property
     def current_db(self) -> str:
         """
-        Name of the database (graph) where the next query would be
-        executed.
+        Name of the current database.
+
+        All operations and queries are executed by default on this database.
 
         Returns:
             Name of a database.
@@ -618,6 +640,8 @@ class Driver:
     @current_db.setter
     def current_db(self, name: str):
         """
+        The database currently in use.
+
         Args:
             name:
                 Name of a database.
@@ -789,6 +813,8 @@ class Driver:
 
     def wipe_db(self):
         """
+        Delete all contents of the current database.
+
         Used in initialisation, deletes all nodes and edges and drops
         all indices and constraints.
         """
@@ -800,10 +826,10 @@ class Driver:
 
     def ensure_db(self):
         """
-        Makes sure the database used by this instance exists and is
-        online. If the database creation or startup is necessary but the
-        user does not have the sufficient privileges, an exception will
-        be raised.
+        Makes sure the database exists and is online.
+
+        If the database creation or startup is necessary but the user does
+        not have the sufficient privileges, an exception will be raised.
         """
 
         if not self.db_exists():
@@ -919,8 +945,8 @@ class Driver:
 
 
     def _list_indices(
-        self,
-        what: Literal['indexes', 'indices', 'constraints'] = 'constraints',
+            self,
+            what: Literal['indexes', 'indices', 'constraints'] = 'constraints',
     ) -> list | None:
 
         what_u = self._idx_cstr_synonyms(what)
@@ -1095,6 +1121,15 @@ class Driver:
 
     @contextlib.contextmanager
     def session(self, **kwargs):
+        """
+        Context with a database connection session.
+
+        A context that creates a session and closes it at the end.
+
+        Args:
+            Kwargs:
+                Passed to ``neo4j.Neo4jDriver.session``.
+        """
 
         session = self.driver.session(**kwargs)
 
@@ -1147,8 +1182,10 @@ class Driver:
     @property
     def node_labels(self) -> list[str]:
         """
-        Node labels defined in the database. Presence of a label does
-        not guarantee any instance of it exists in the database.
+        Node labels defined in the database.
+
+        Presence of a label does not guarantee any instance of it exists in
+        the database.
         """
 
         return [
@@ -1163,17 +1200,15 @@ class Driver:
         Count the nodes by labels.
         """
 
-        return dict(
-            (
-                r['LABELS(n)'][0],
-                r['COUNT(*)'],
-            )
+        return {
+                r['LABELS(n)'][0]:
+                r['COUNT(*)']
             for r in
             self.query(
                 'MATCH (n) RETURN DISTINCT LABELS(n), COUNT(*);',
             )[0] or
             []
-        )
+        }
 
 
     @property
@@ -1194,17 +1229,15 @@ class Driver:
         Count the relationships by types.
         """
 
-        return dict(
-            (
-                r['TYPE(r)'],
-                r['COUNT(*)'],
-            )
+        return {
+                r['TYPE(r)']:
+                r['COUNT(*)']
             for r in
             self.query(
                 'MATCH ()-[r]->() RETURN DISTINCT TYPE(r), COUNT(*);',
             )[0] or
             []
-        )
+        }
 
 
     @property
@@ -1225,7 +1258,7 @@ class Driver:
         Version of the APOC plugin available in the current database.
         """
 
-        db = db or self._db_config['db'] or neo4j.DEFAULT_DATABASE
+        db = self._db_config['db'] or neo4j.DEFAULT_DATABASE
 
         try:
 
