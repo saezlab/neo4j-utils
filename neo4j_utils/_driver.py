@@ -67,6 +67,7 @@ class Driver:
             fetch_size: int = 1000,
             raise_errors: bool | None = None,
             wipe: bool = False,
+            offline: bool = False,
             multi_db: bool = True,  # legacy parameter for pre-4.0 DBs
             **kwargs
     ):
@@ -120,6 +121,7 @@ class Driver:
         }
         self._config_file = config
         self._drivers = {}
+        self._offline = offline
         self.multi_db = multi_db
 
         if self.driver:
@@ -137,6 +139,10 @@ class Driver:
             self.db_connect()
 
         self.ensure_db()
+
+        if wipe:
+
+            self.wipe_db()
 
 
     def reload(self):
@@ -166,13 +172,21 @@ class Driver:
         con_param = printer.dict_str({'uri': self.uri, 'auth': self.auth})
         logger.info(f'Attempting to connect: {con_param}')
 
-        self.driver = neo4j.GraphDatabase.driver(
-            uri=self.uri,
-            auth=self.auth,
-        )
-        self._register_current_driver()
+        if self.offline:
 
-        logger.info('Opened database connection.')
+            self.driver = None
+            logger.info('Offline mode, not connecting to database.')
+
+        else:
+
+            self.driver = neo4j.GraphDatabase.driver(
+                uri=self.uri,
+                auth=self.auth,
+            )
+            logger.info('Opened database connection.')
+
+
+        self._register_current_driver()
 
 
     @property
@@ -196,10 +210,15 @@ class Driver:
             'no connection',
             'db offline',
             'db online',
+            'offline',
     ]:
         """
         State of this driver object and its current database.
         """
+
+        if self.offline:
+
+            return 'offline'
 
         if not self.driver:
 
@@ -291,11 +310,15 @@ class Driver:
 
         from_driver = {
             'uri': self._uri(
-                host = self.driver.default_host,
-                port = self.driver.default_port,
+                host = getattr(self.driver, 'default_host', None),
+                port = getattr(self.driver, 'default_port', None),
             ),
             'db': self.current_db,
-            'fetch_size': self.driver._default_workspace_config.fetch_size,
+            'fetch_size': getattr(
+                getattr(self.driver, '_default_workspace_config', None),
+                'fetch_size',
+                None,
+            ),
             'user': self.user,
             'passwd': self.passwd,
         }
@@ -478,6 +501,12 @@ class Driver:
         elif profile:
 
             query = 'PROFILE ' + query
+
+        if self.offline:
+
+            logger.info(f'Offline mode, not running query: `{query}`.')
+
+            return None, None
 
         db = db or self._db_config['db'] or neo4j.DEFAULT_DATABASE
         fetch_size = fetch_size or self._db_config['fetch_size']
@@ -1290,3 +1319,12 @@ class Driver:
         with open(path, 'w') as fp:
 
             yaml.safe_dump(self._db_config, fp)
+
+
+    @property
+    def offline(self) -> bool:
+        """
+        Whether the driver is in offline mode.
+        """
+
+        return self._offline
