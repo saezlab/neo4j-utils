@@ -33,6 +33,7 @@ import yaml
 import neo4j
 import neo4j.exceptions as neo4j_exc
 
+import neo4j_utils._misc as _misc
 import neo4j_utils._print as printer
 
 __all__ = ['CONFIG_FILES', 'DEFAULT_CONFIG', 'Driver']
@@ -180,8 +181,8 @@ class Driver:
         else:
 
             self.driver = neo4j.GraphDatabase.driver(
-                uri=self.uri,
-                auth=self.auth,
+                uri = self.uri,
+                auth = self.auth,
             )
             logger.info('Opened database connection.')
 
@@ -1328,3 +1329,99 @@ class Driver:
         """
 
         return self._offline
+
+
+    @offline.setter
+    def offline(self, offline: bool):
+        """
+        Enable or disable offline mode.
+        """
+
+        self.go_offline if offline else self.go_online()
+
+
+    def go_offline(self):
+        """
+        Switch to offline mode.
+
+        The connection will be destroyed and query execution or any contact
+        to the server won't be attempted any more.
+        """
+
+        self._offline = True
+        self.close()
+        self.driver = None
+        self._register_current_driver()
+
+
+    def go_online(
+            self,
+            db_name: str | None = None,
+            db_uri: str | None = None,
+            db_user: str | None = None,
+            db_passwd: str | None = None,
+            config: CONFIG_FILES | None = None,
+            fetch_size: int | None = None,
+            raise_errors: bool | None = None,
+            wipe: bool = False,
+    ):
+        """
+        Switch to online mode.
+
+        In offline mode this object doesn't do any interaction to the server,
+        instead it serves more or less as a mock. Here we attempt to create
+        a connection to the server based on the config contained in this
+        object or passed as arguments to this method. If the connection is
+        successful, the :attr:``offline`` flag will be set to ``False`` and
+        server interactions will be performed as normal.
+
+        Args:
+            db_name:
+                Name of the database (Neo4j graph) to use.
+            db_uri:
+                Protocol, host and port to access the Neo4j server.
+            db_user:
+                Neo4j user name.
+            db_passwd:
+                Password of the Neo4j user.
+            fetch_size:
+                Optional; the fetch size to use in database transactions.
+            raise_errors:
+                Raise the errors instead of turning them into log messages
+                and returning `None`.
+            config:
+                Path to a YAML config file which provides the URI, user
+                name and password.
+            wipe:
+                Wipe the database after connection, ensuring the data is
+                loaded into an empty database.
+        """
+
+        self._offline = False
+
+        try:
+
+            for k, current in self._db_config.items():
+
+                self._db_config = {
+                    k: _misc.if_none(
+                        locals().get(k, None),
+                        current,
+                        DEFAULT_CONFIG['key'],
+                    )
+                    for k, current in self._db_config.items()
+                }
+
+            self._config_file = self._config_file or config
+
+            self.db_connect()
+            self.ensure_db()
+
+        except Exception as e:
+
+            logger.error(f'Failed to connect: {printer.error_str(e)}')
+            self._offline = True
+
+        if wipe:
+
+            self.wipe_db()
