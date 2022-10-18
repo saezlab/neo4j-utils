@@ -563,6 +563,13 @@ class Driver:
 
                 logger.error(f'Failed to run query: {printer.error_str(e)}')
 
+                if e.__class__.__name__ == 'AuthError':
+
+                    logger.error(
+                        'Authentication error, switching to offline mode.',
+                    )
+                    self.go_offline()
+
                 if raise_errors:
 
                     raise
@@ -848,6 +855,8 @@ class Driver:
         Used in initialisation, deletes all nodes and edges and drops
         all indices and constraints.
         """
+
+        logger.info(f'Wiping database `{self.current_db}`.')
 
         self.query('MATCH (n) DETACH DELETE n;')
 
@@ -1191,7 +1200,7 @@ class Driver:
 
         return '<{} {}>'.format(
             self.__class__.__name__,
-            self._connection_str if self.driver else '[no connection]',
+            self._connection_str if self.driver else '[offline]',
         )
 
 
@@ -1352,6 +1361,7 @@ class Driver:
         self.close()
         self.driver = None
         self._register_current_driver()
+        logger.warn('Offline mode: any interaction to the server is disabled.')
 
 
     def go_online(
@@ -1407,7 +1417,7 @@ class Driver:
                     k: _misc.if_none(
                         locals().get(k, None),
                         current,
-                        DEFAULT_CONFIG['key'],
+                        DEFAULT_CONFIG[k],
                     )
                     for k, current in self._db_config.items()
                 }
@@ -1416,6 +1426,7 @@ class Driver:
 
             self.db_connect()
             self.ensure_db()
+            logger.info('Online mode: ready to run queries.')
 
         except Exception as e:
 
