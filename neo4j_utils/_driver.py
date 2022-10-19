@@ -47,7 +47,9 @@ DEFAULT_CONFIG = {
     'uri': 'neo4j://localhost:7687',
     'fetch_size': 1000,
     'raise_errors': False,
+    'fallback_db': ['system', 'neo4j'],
 }
+FALLBACK_ON = {'TransientError'}
 
 
 class Driver:
@@ -70,6 +72,7 @@ class Driver:
             wipe: bool = False,
             offline: bool = False,
             multi_db: bool = True,  # legacy parameter for pre-4.0 DBs
+            fallback_db: str | tuple[str] | None = None,
             **kwargs
     ):
         """
@@ -107,6 +110,13 @@ class Driver:
             wipe:
                 Wipe the database after connection, ensuring the data is
                 loaded into an empty database.
+            offline:
+                Disable any interaction to the server. Queries won't be
+                executed. The config will be still stored in the object
+                and it will be ready to go online by its ``go_online``
+                method.
+            fallback_db:
+                Arbitrary number of fallback databases. If a query
             kwargs:
                 Ignored.
         """
@@ -119,6 +129,7 @@ class Driver:
             'db': db_name,
             'fetch_size': fetch_size,
             'raise_errors': raise_errors,
+            'fallback_db': fallback_db,
         }
         self._config_file = config
         self._drivers = {}
@@ -423,7 +434,7 @@ class Driver:
             write: bool = True,  # route to write server (default)
             explain: bool = False,
             profile: bool = False,
-            fallback_db: str | None = None,
+            fallback_db: str | tuple[str] | None = None,
             raise_errors: bool | None = None,
             **kwargs,
     ) -> tuple[list[dict] | None, neo4j.work.summary.ResultSummary | None]:
@@ -544,37 +555,38 @@ class Driver:
             fallback_db = fallback_db or getattr(self, '_fallback_db', None)
             self._fallback_db = None
 
-            if fallback_db:
+            if e.__class__.__name__ in FALLBACK_ON:
 
-                logger.warn(
-                    'Running query against fallback '
-                    f'database `{fallback_db}`.',
-                )
+                for fdb in _misc.to_tuple(fallback_db):
 
-                return self.query(
-                    query = query,
-                    db = fallback_db,
-                    fetch_size = fetch_size,
-                    write = write,
-                    **kwargs
-                )
-
-            else:
-
-                logger.error(f'Failed to run query: {printer.error_str(e)}')
-
-                if e.__class__.__name__ == 'AuthError':
-
-                    logger.error(
-                        'Authentication error, switching to offline mode.',
+                    logger.warn(
+                        'Running query against fallback '
+                        f'database `{fdb}`.',
                     )
-                    self.go_offline()
 
-                if raise_errors:
+                    return self.query(
+                        query = query,
+                        db = fdb,
+                        fetch_size = fetch_size,
+                        write = write,
+                        raise_errors = raise_errors,
+                        **kwargs
+                    )
 
-                    raise
+            logger.error(f'Failed to run query: {printer.error_str(e)}')
 
-                return None, None
+            if e.__class__.__name__ == 'AuthError':
+
+                logger.error(
+                    'Authentication error, switching to offline mode.',
+                )
+                self.go_offline()
+
+            if raise_errors:
+
+                raise
+
+            return None, None
 
 
     def explain(
@@ -844,7 +856,10 @@ class Driver:
                 name or self.current_db,
                 options or '',
             ),
-            fallback_db = 'neo4j',
+            fallback_db = (
+                getattr(self, '_fallback_db', None) or
+                self._db_config['fallback_db']
+            ),
         )
 
 
@@ -1134,7 +1149,7 @@ class Driver:
 
 
     @contextlib.contextmanager
-    def fallback_db(self, fallback: str = 'neo4j'):
+    def fallback_db(self, fallback: str | tuple[str] | None = None):
         """
         Should running on the default database fail, try a fallback database.
 
@@ -1143,8 +1158,11 @@ class Driver:
 
         Args:
             fallback:
-                Name of the fallback database.
+                Name of one or more fallback database(s).
         """
+
+        fallback = fallback or self._db_config.get('fallback_db')
+        fallback = _misc.to_tuple(fallback)
 
         fallback_db_prev = getattr(self, '_fallback_db', None)
         self._fallback_db = fallback
@@ -1436,3 +1454,4 @@ class Driver:
         if wipe:
 
             self.wipe_db()
+
