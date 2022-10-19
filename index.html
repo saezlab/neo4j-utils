@@ -16,6 +16,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -29,7 +30,7 @@
             <a href="#" class="icon icon-home"> neo4j_utils
           </a>
               <div class="version">
-                0.0.5
+                0.0.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -45,7 +46,60 @@
 <li><a class="reference internal" href="#extras-on-top-of-the-official-neo4j-driver">Extras on top of the official Neo4j driver</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#reference">Reference</a></li>
+<li><a class="reference internal" href="#reference">Reference</a><ul>
+<li><a class="reference internal" href="#neo4j_utils.Driver"><code class="docutils literal notranslate"><span class="pre">Driver</span></code></a><ul>
+<li><a class="reference internal" href="#neo4j_utils.Driver.apoc_version"><code class="docutils literal notranslate"><span class="pre">Driver.apoc_version</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.auth"><code class="docutils literal notranslate"><span class="pre">Driver.auth</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.close"><code class="docutils literal notranslate"><span class="pre">Driver.close()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.constraints"><code class="docutils literal notranslate"><span class="pre">Driver.constraints</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.create_db"><code class="docutils literal notranslate"><span class="pre">Driver.create_db()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.current_db"><code class="docutils literal notranslate"><span class="pre">Driver.current_db</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.db_connect"><code class="docutils literal notranslate"><span class="pre">Driver.db_connect()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.db_exists"><code class="docutils literal notranslate"><span class="pre">Driver.db_exists()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.db_online"><code class="docutils literal notranslate"><span class="pre">Driver.db_online()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.db_status"><code class="docutils literal notranslate"><span class="pre">Driver.db_status()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.default_db"><code class="docutils literal notranslate"><span class="pre">Driver.default_db</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.drop_constraints"><code class="docutils literal notranslate"><span class="pre">Driver.drop_constraints()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.drop_db"><code class="docutils literal notranslate"><span class="pre">Driver.drop_db()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.drop_indices"><code class="docutils literal notranslate"><span class="pre">Driver.drop_indices()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.drop_indices_constraints"><code class="docutils literal notranslate"><span class="pre">Driver.drop_indices_constraints()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.edge_count"><code class="docutils literal notranslate"><span class="pre">Driver.edge_count</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.ensure_db"><code class="docutils literal notranslate"><span class="pre">Driver.ensure_db()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.explain"><code class="docutils literal notranslate"><span class="pre">Driver.explain()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.fallback_db"><code class="docutils literal notranslate"><span class="pre">Driver.fallback_db()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.go_offline"><code class="docutils literal notranslate"><span class="pre">Driver.go_offline()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.go_online"><code class="docutils literal notranslate"><span class="pre">Driver.go_online()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.has_apoc"><code class="docutils literal notranslate"><span class="pre">Driver.has_apoc</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.home_db"><code class="docutils literal notranslate"><span class="pre">Driver.home_db</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.indices"><code class="docutils literal notranslate"><span class="pre">Driver.indices</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.label_counts"><code class="docutils literal notranslate"><span class="pre">Driver.label_counts</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.node_count"><code class="docutils literal notranslate"><span class="pre">Driver.node_count</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.node_labels"><code class="docutils literal notranslate"><span class="pre">Driver.node_labels</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.offline"><code class="docutils literal notranslate"><span class="pre">Driver.offline</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.passwd"><code class="docutils literal notranslate"><span class="pre">Driver.passwd</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.profile"><code class="docutils literal notranslate"><span class="pre">Driver.profile()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.prop_keys"><code class="docutils literal notranslate"><span class="pre">Driver.prop_keys</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.query"><code class="docutils literal notranslate"><span class="pre">Driver.query()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.read_config"><code class="docutils literal notranslate"><span class="pre">Driver.read_config()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.rel_type_counts"><code class="docutils literal notranslate"><span class="pre">Driver.rel_type_counts</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.rel_types"><code class="docutils literal notranslate"><span class="pre">Driver.rel_types</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.reload"><code class="docutils literal notranslate"><span class="pre">Driver.reload()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.select_db"><code class="docutils literal notranslate"><span class="pre">Driver.select_db()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.session"><code class="docutils literal notranslate"><span class="pre">Driver.session()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.start_db"><code class="docutils literal notranslate"><span class="pre">Driver.start_db()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.status"><code class="docutils literal notranslate"><span class="pre">Driver.status</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.stop_db"><code class="docutils literal notranslate"><span class="pre">Driver.stop_db()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.uri"><code class="docutils literal notranslate"><span class="pre">Driver.uri</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.use_db"><code class="docutils literal notranslate"><span class="pre">Driver.use_db()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.user"><code class="docutils literal notranslate"><span class="pre">Driver.user</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.wipe_db"><code class="docutils literal notranslate"><span class="pre">Driver.wipe_db()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.write_config"><code class="docutils literal notranslate"><span class="pre">Driver.write_config()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#neo4j_utils.log"><code class="docutils literal notranslate"><span class="pre">log()</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.logfile"><code class="docutils literal notranslate"><span class="pre">logfile()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#indices-tables-and-search">Indices, Tables, and Search</a></li>
 </ul>
 </div>
@@ -91,23 +145,30 @@ it to make its usage a bit more convenient.</p>
 <span class="target" id="module-neo4j_utils"></span><p>Extra utils for using Neo4j.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="neo4j_utils.Driver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neo4j_utils.</span></span><span class="sig-name descname"><span class="pre">Driver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">driver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Driver</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#neo4j_utils.Driver" title="neo4j_utils._driver.Driver"><span class="pre">Driver</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_passwd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'neo4j.yaml'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'neo4j.yml'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fetch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wipe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">neo4j_utils.</span></span><span class="sig-name descname"><span class="pre">Driver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">driver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Driver</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#neo4j_utils.Driver" title="neo4j_utils._driver.Driver"><span class="pre">Driver</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_passwd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'neo4j.yaml'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'neo4j.yml'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fetch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wipe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver" title="Permalink to this definition"></a></dt>
 <dd><p>Manage the connection to the Neo4j server.</p>
-<p>Establishes the connection and executes queries. A wrapper around
-the <cite>Driver</cite> object from the <code class="xref py py-mod docutils literal notranslate"><span class="pre">neo4j</span></code> module, which is stored
-in the <code class="xref py py-attr docutils literal notranslate"><span class="pre">driver</span></code> attribute.</p>
-<dl class="simple">
-<dt>The connection can be defined in three ways:</dt><dd><ul class="simple">
-<li><p>Providing a ready <code class="docutils literal notranslate"><span class="pre">neo4j.Driver</span></code> instance</p></li>
-<li><p>By URI and authentication data</p></li>
-<li><p>By a YAML config file</p></li>
-</ul>
-</dd>
-</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.apoc_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apoc_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#neo4j_utils.Driver.apoc_version" title="Permalink to this definition"></a></dt>
+<dd><p>Version of the APOC plugin available in the current database.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.auth">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">auth</span></span><a class="headerlink" href="#neo4j_utils.Driver.auth" title="Permalink to this definition"></a></dt>
+<dd><p>Database server user and password (from config or built-in default).</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.close" title="Permalink to this definition"></a></dt>
 <dd><p>Closes the Neo4j driver if it exists and is open.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.constraints">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">constraints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#neo4j_utils.Driver.constraints" title="Permalink to this definition"></a></dt>
+<dd><p>List of constraints in the current database.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -124,8 +185,8 @@ in the <code class="xref py py-attr docutils literal notranslate"><span class="p
 <dl class="py property">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.current_db">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_db</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#neo4j_utils.Driver.current_db" title="Permalink to this definition"></a></dt>
-<dd><p>Name of the database (graph) where the next query would be
-executed.</p>
+<dd><p>Name of the current database.</p>
+<p>All operations and queries are executed by default on this database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Name of a database.</p>
@@ -136,7 +197,8 @@ executed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.db_connect">
 <span class="sig-name descname"><span class="pre">db_connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.db_connect" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a database connection manager (driver) based on the
+<dd><p>Connect to the database server.</p>
+<p>Creates a database connection manager (driver) based on the
 current configuration.</p>
 </dd></dl>
 
@@ -193,6 +255,12 @@ dictionary with all fields will be returned.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.default_db">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_db</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#neo4j_utils.Driver.default_db" title="Permalink to this definition"></a></dt>
+<dd><p>Default database of the server.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.drop_constraints">
 <span class="sig-name descname"><span class="pre">drop_constraints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.drop_constraints" title="Permalink to this definition"></a></dt>
@@ -234,17 +302,15 @@ dictionary with all fields will be returned.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.ensure_db">
 <span class="sig-name descname"><span class="pre">ensure_db</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.ensure_db" title="Permalink to this definition"></a></dt>
-<dd><p>Makes sure the database used by this instance exists and is
-online. If the database creation or startup is necessary but the
-user does not have the sufficient privileges, an exception will
-be raised.</p>
+<dd><p>Makes sure the database exists and is online.</p>
+<p>If the database creation or startup is necessary but the user does
+not have the sufficient privileges, an exception will be raised.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.explain">
 <span class="sig-name descname"><span class="pre">explain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fetch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.explain" title="Permalink to this definition"></a></dt>
-<dd><p>Wrapper for EXPLAIN function query to bring summary in
-readable form.</p>
+<dd><p>Explain a query and pretty print the output.</p>
 <p>CAVE: Only handles linear profiles (no branching) as of now.
 TODO include branching as in profile()</p>
 </dd></dl>
@@ -262,10 +328,85 @@ running against the default database fails.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.go_offline">
+<span class="sig-name descname"><span class="pre">go_offline</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.go_offline" title="Permalink to this definition"></a></dt>
+<dd><p>Switch to offline mode.</p>
+<p>The connection will be destroyed and query execution or any contact
+to the server won’t be attempted any more.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.go_online">
+<span class="sig-name descname"><span class="pre">go_online</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_passwd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'neo4j.yaml'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'neo4j.yml'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fetch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wipe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.go_online" title="Permalink to this definition"></a></dt>
+<dd><p>Switch to online mode.</p>
+<p>In offline mode this object doesn’t do any interaction to the server,
+instead it serves more or less as a mock. Here we attempt to create
+a connection to the server based on the config contained in this
+object or passed as arguments to this method. If the connection is
+successful, the :attr:<code class="docutils literal notranslate"><span class="pre">offline</span></code> flag will be set to <code class="docutils literal notranslate"><span class="pre">False</span></code> and
+server interactions will be performed as normal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db_name</strong> – Name of the database (Neo4j graph) to use.</p></li>
+<li><p><strong>db_uri</strong> – Protocol, host and port to access the Neo4j server.</p></li>
+<li><p><strong>db_user</strong> – Neo4j user name.</p></li>
+<li><p><strong>db_passwd</strong> – Password of the Neo4j user.</p></li>
+<li><p><strong>fetch_size</strong> – Optional; the fetch size to use in database transactions.</p></li>
+<li><p><strong>raise_errors</strong> – Raise the errors instead of turning them into log messages
+and returning <cite>None</cite>.</p></li>
+<li><p><strong>config</strong> – Path to a YAML config file which provides the URI, user
+name and password.</p></li>
+<li><p><strong>wipe</strong> – Wipe the database after connection, ensuring the data is
+loaded into an empty database.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.has_apoc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_apoc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#neo4j_utils.Driver.has_apoc" title="Permalink to this definition"></a></dt>
+<dd><p>Tells if APOC is available in the current database.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.home_db">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">home_db</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#neo4j_utils.Driver.home_db" title="Permalink to this definition"></a></dt>
+<dd><p>Home database of the current user.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.indices">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">indices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#neo4j_utils.Driver.indices" title="Permalink to this definition"></a></dt>
+<dd><p>List of indices in the current database.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.label_counts">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">label_counts</span></span><a class="headerlink" href="#neo4j_utils.Driver.label_counts" title="Permalink to this definition"></a></dt>
+<dd><p>Count the nodes by labels.</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.node_count">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">node_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#neo4j_utils.Driver.node_count" title="Permalink to this definition"></a></dt>
 <dd><p>Number of nodes in the database.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.node_labels">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">node_labels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#neo4j_utils.Driver.node_labels" title="Permalink to this definition"></a></dt>
+<dd><p>Node labels defined in the database.</p>
+<p>Presence of a label does not guarantee any instance of it exists in
+the database.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.offline">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">offline</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#neo4j_utils.Driver.offline" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the driver is in offline mode.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -283,8 +424,7 @@ unencrypted authentication data is available.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.profile">
 <span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fetch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.profile" title="Permalink to this definition"></a></dt>
-<dd><p>Wrapper for PROFILE function query to bring summary in
-readable form.</p>
+<dd><p>Profile a query and pretty print the output.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -314,9 +454,15 @@ for instance for passing a parameter dictionary</p></li>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.prop_keys">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prop_keys</span></span><a class="headerlink" href="#neo4j_utils.Driver.prop_keys" title="Permalink to this definition"></a></dt>
+<dd><p>Property keys defined in the database.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.query">
-<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fetch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.query" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fetch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">neo4j.work.summary.ResultSummary</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#neo4j_utils.Driver.query" title="Permalink to this definition"></a></dt>
 <dd><p>Run a CYPHER query.</p>
 <p>Create a session with the wrapped driver, run a CYPHER query and
 return the response.</p>
@@ -357,8 +503,21 @@ by the <code class="docutils literal notranslate"><span class="pre">.consume()</
 <dl class="py method">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.read_config">
 <span class="sig-name descname"><span class="pre">read_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.read_config" title="Permalink to this definition"></a></dt>
-<dd><p>Populates the instance configuration from one section of a YAML
+<dd><p>Read the configuration from a YAML file.</p>
+<p>Populates the instance configuration from one section of a YAML
 config file.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.rel_type_counts">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rel_type_counts</span></span><a class="headerlink" href="#neo4j_utils.Driver.rel_type_counts" title="Permalink to this definition"></a></dt>
+<dd><p>Count the relationships by types.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.rel_types">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rel_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#neo4j_utils.Driver.rel_types" title="Permalink to this definition"></a></dt>
+<dd><p>Relationship types defined in the database.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -377,6 +536,18 @@ create or re-use another <cite>Driver</cite> object.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.session">
+<span class="sig-name descname"><span class="pre">session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.session" title="Permalink to this definition"></a></dt>
+<dd><p>Context with a database connection session.</p>
+<p>A context that creates a session and closes it at the end.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Kwargs</strong> – Passed to <code class="docutils literal notranslate"><span class="pre">neo4j.Neo4jDriver.session</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.start_db">
 <span class="sig-name descname"><span class="pre">start_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.start_db" title="Permalink to this definition"></a></dt>
 <dd><p>Starts a database (brings it online) if it is offline.</p>
@@ -385,6 +556,12 @@ create or re-use another <cite>Driver</cite> object.</p>
 <dd class="field-odd"><p><strong>name</strong> – Name of the database.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.status">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'no</span> <span class="pre">driver'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'no</span> <span class="pre">connection'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'db</span> <span class="pre">offline'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'db</span> <span class="pre">online'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'offline'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#neo4j_utils.Driver.status" title="Permalink to this definition"></a></dt>
+<dd><p>State of this driver object and its current database.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -396,6 +573,12 @@ create or re-use another <cite>Driver</cite> object.</p>
 <dd class="field-odd"><p><strong>name</strong> – Name of the database.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.uri">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uri</span></span><a class="headerlink" href="#neo4j_utils.Driver.uri" title="Permalink to this definition"></a></dt>
+<dd><p>Database server URI (from config or built-in default).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -424,8 +607,15 @@ unencrypted authentication data is available.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="neo4j_utils.Driver.wipe_db">
 <span class="sig-name descname"><span class="pre">wipe_db</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.wipe_db" title="Permalink to this definition"></a></dt>
-<dd><p>Used in initialisation, deletes all nodes and edges and drops
-all constraints.</p>
+<dd><p>Delete all contents of the current database.</p>
+<p>Used in initialisation, deletes all nodes and edges and drops
+all indices and constraints.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.write_config">
+<span class="sig-name descname"><span class="pre">write_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'neo4j.yaml'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#neo4j_utils.Driver.write_config" title="Permalink to this definition"></a></dt>
+<dd><p>Write the current config into file.</p>
 </dd></dl>
 
 </dd></dl>
