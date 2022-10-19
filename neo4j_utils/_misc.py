@@ -13,9 +13,20 @@
 Small, general purpose snippets used in various parts of the module.
 """
 
-from typing import Any
+from typing import Any, Mapping, KeysView, Generator, ItemsView, ValuesView
 
-__all__ = ['if_none']
+__all__ = ['LIST_LIKE', 'if_none', 'to_list']
+
+LIST_LIKE = (
+    list,
+    set,
+    tuple,
+    Generator,
+    ItemsView,
+    KeysView,
+    Mapping,
+    ValuesView,
+)
 
 
 def if_none(*values) -> Any:
@@ -28,3 +39,31 @@ def if_none(*values) -> Any:
         if v is not None:
 
             return v
+
+
+def to_list(value: Any) -> list:
+    """
+    Ensures that ``value`` is a list.
+    """
+
+    if isinstance(value, LIST_LIKE):
+
+        value = list(value)
+
+    elif value is None:
+
+        value = []
+
+    else:
+
+        value = [value]
+
+    return value
+
+
+def to_tuple(value: Any) -> tuple:
+    """
+    Ensures that ``value`` is a tuple.
+    """
+
+    return tuple(to_list(value))
