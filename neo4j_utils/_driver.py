@@ -25,6 +25,7 @@ logger.debug(f'Loading module {__name__.strip("_")}.')
 from typing import Literal
 import os
 import re
+import builtins
 import warnings
 import importlib as imp
 import contextlib
@@ -47,9 +48,9 @@ DEFAULT_CONFIG = {
     'uri': 'neo4j://localhost:7687',
     'fetch_size': 1000,
     'raise_errors': False,
-    'fallback_db': ['system', 'neo4j'],
+    'fallback_db': ('system', 'neo4j'),
+    'fallback_on': ('TransientError',),
 }
-FALLBACK_ON = {'TransientError'}
 
 
 class Driver:
@@ -73,6 +74,7 @@ class Driver:
             offline: bool = False,
             multi_db: bool = True,  # legacy parameter for pre-4.0 DBs
             fallback_db: str | tuple[str] | None = None,
+            fallback_on: str | set[str] | None = None,
             **kwargs
     ):
         """
@@ -116,7 +118,14 @@ class Driver:
                 and it will be ready to go online by its ``go_online``
                 method.
             fallback_db:
-                Arbitrary number of fallback databases. If a query
+                Arbitrary number of fallback databases. If a query fails
+                to run against the current database, it will be attempted
+                against the fallback databases.
+            fallback_on:
+                Switch to the fallback databases upon these errors. At most
+                of the errors it doesn't make sense to try to run with
+                another database, but especially for database and server
+                management commands this is a convenient solution.
             kwargs:
                 Ignored.
         """
@@ -130,6 +139,7 @@ class Driver:
             'fetch_size': fetch_size,
             'raise_errors': raise_errors,
             'fallback_db': fallback_db,
+            'fallback_on': fallback_on,
         }
         self._config_file = config
         self._drivers = {}
@@ -411,7 +421,7 @@ class Driver:
 
             resp, summary = self.query(
                 f'SHOW {which} DATABASE;',
-                fallback_db = 'neo4j',
+                fallback_db = self._get_fallback_db,
             )
 
         except (neo4j_exc.AuthError, neo4j_exc.ServiceUnavailable) as e:
@@ -426,6 +436,24 @@ class Driver:
             return resp[0]['name']
 
 
+    @property
+    def _get_fallback_db(self) -> tuple[str]:
+
+        return _misc.to_tuple(
+            getattr(self, '_fallback_db', None) or
+            self._db_config['fallback_db'],
+        )
+
+
+    @property
+    def _get_fallback_on(self) -> set[str]:
+
+        return _misc.to_set(
+            getattr(self, '_fallback_on', None) or
+            self._db_config['fallback_on'],
+        )
+
+
     def query(
             self,
             query: str,
@@ -435,6 +463,7 @@ class Driver:
             explain: bool = False,
             profile: bool = False,
             fallback_db: str | tuple[str] | None = None,
+            fallback_on: str | set[str] | None = None,
             raise_errors: bool | None = None,
             **kwargs,
     ) -> tuple[list[dict] | None, neo4j.work.summary.ResultSummary | None]:
@@ -463,6 +492,12 @@ class Driver:
                 If the query fails due to the database being unavailable,
                 try to execute it against a fallback database. Typically
                 the default database "neo4j" can be used as a fallback.
+            fallback_on:
+                Run queries against the fallback databases in case of
+                these errors.
+            raise_errors:
+                Raise Neo4j errors instead of only printing them into
+                the log and stdout.
             **kwargs:
                 Optional objects used in CYPHER interactive mode,
                 for instance for passing a parameter dictionary.
@@ -552,26 +587,34 @@ class Driver:
 
         except (neo4j_exc.Neo4jError, neo4j_exc.DriverError) as e:
 
-            fallback_db = fallback_db or getattr(self, '_fallback_db', None)
-            self._fallback_db = None
+            fallback_db = fallback_db or getattr(self, '_fallback_db', ())
+            fallback_on = _misc.to_set(
+                _misc.if_none(
+                    fallback_on,
+                    self._get_fallback_on,
+                ),
+            )
 
-            if e.__class__.__name__ in FALLBACK_ON:
+            if self.match_error(e, fallback_on):
 
                 for fdb in _misc.to_tuple(fallback_db):
 
-                    logger.warn(
-                        'Running query against fallback '
-                        f'database `{fdb}`.',
-                    )
+                    if fdb != db:
 
-                    return self.query(
-                        query = query,
-                        db = fdb,
-                        fetch_size = fetch_size,
-                        write = write,
-                        raise_errors = raise_errors,
-                        **kwargs
-                    )
+                        logger.warn(
+                            'Running query against fallback '
+                            f'database `{fdb}`.',
+                        )
+
+                        return self.query(
+                            query = query,
+                            db = fdb,
+                            fetch_size = fetch_size,
+                            write = write,
+                            fallback_on = set(),
+                            raise_errors = raise_errors,
+                            **kwargs
+                        )
 
             logger.error(f'Failed to run query: {printer.error_str(e)}')
 
@@ -765,7 +808,7 @@ class Driver:
 
         query = f'SHOW DATABASES WHERE name = "{name}";'
 
-        with self.fallback_db():
+        with self.fallback():
 
             resp, summary = self.query(query)
 
@@ -856,10 +899,7 @@ class Driver:
                 name or self.current_db,
                 options or '',
             ),
-            fallback_db = (
-                getattr(self, '_fallback_db', None) or
-                self._db_config['fallback_db']
-            ),
+            fallback_db = self._get_fallback_db,
         )
 
 
@@ -1149,7 +1189,11 @@ class Driver:
 
 
     @contextlib.contextmanager
-    def fallback_db(self, fallback: str | tuple[str] | None = None):
+    def fallback(
+            self,
+            db: str | tuple[str] | None = None,
+            on: str | set[str] | None = None,
+    ):
         """
         Should running on the default database fail, try a fallback database.
 
@@ -1157,15 +1201,22 @@ class Driver:
         running against the default database fails.
 
         Args:
-            fallback:
+            db:
                 Name of one or more fallback database(s).
+            on:
+                Names of the errors when the fallback database should be used.
         """
 
-        fallback = fallback or self._db_config.get('fallback_db')
-        fallback = _misc.to_tuple(fallback)
+        prev = {}
 
-        fallback_db_prev = getattr(self, '_fallback_db', None)
-        self._fallback_db = fallback
+        for var in ('db', 'on'):
+
+            prev[var] = getattr(self, f'_fallback_{var}', None)
+            setattr(
+                self,
+                f'_fallback_{var}',
+                locals()[var] or self._db_config.get(f'fallback_{var}'),
+            )
 
         try:
 
@@ -1173,7 +1224,9 @@ class Driver:
 
         finally:
 
-            self._fallback_db = fallback_db_prev
+            for var in ('db', 'on'):
+
+                setattr(self, f'_fallback_{var}', prev[var])
 
 
     @contextlib.contextmanager
@@ -1455,3 +1508,48 @@ class Driver:
 
             self.wipe_db()
 
+
+    @staticmethod
+    def match_error(
+            error: Exception | str,
+            errors: set[Exception | str],
+    ) -> bool:
+        """
+        Tells if error is listed in errors.
+
+        Args:
+            error:
+                An exception type or its name as string.
+            errors:
+                One or more exception types or names.
+
+        Returns:
+            True if error is found to be a subclass of any of the classes
+            listed in errors.
+        """
+
+        def str_to_exc(e):
+
+            return (
+                e.__class__
+                    if isinstance(e, Exception) else
+                getattr(builtins, e, getattr(neo4j_exc, e, e))
+                    if isinstance(e, str) else
+                e
+            )
+
+
+        error = str_to_exc(error)
+        errors = {str_to_exc(e) for e in _misc.to_set(errors)}
+
+        return (
+            error in errors or
+            (
+                isinstance(error, type) and
+                any(
+                    issubclass(error, e)
+                    for e in errors
+                    if isinstance(e, type)
+                )
+            )
+        )
