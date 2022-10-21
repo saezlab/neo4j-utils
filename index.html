@@ -30,7 +30,7 @@
             <a href="#" class="icon icon-home"> neo4j_utils
           </a>
               <div class="version">
-                0.0.8
+                0.0.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -73,6 +73,8 @@
 <li><a class="reference internal" href="#neo4j_utils.Driver.home_db"><code class="docutils literal notranslate"><span class="pre">Driver.home_db</span></code></a></li>
 <li><a class="reference internal" href="#neo4j_utils.Driver.indices"><code class="docutils literal notranslate"><span class="pre">Driver.indices</span></code></a></li>
 <li><a class="reference internal" href="#neo4j_utils.Driver.label_counts"><code class="docutils literal notranslate"><span class="pre">Driver.label_counts</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.last_fail"><code class="docutils literal notranslate"><span class="pre">Driver.last_fail</span></code></a></li>
+<li><a class="reference internal" href="#neo4j_utils.Driver.last_query"><code class="docutils literal notranslate"><span class="pre">Driver.last_query</span></code></a></li>
 <li><a class="reference internal" href="#neo4j_utils.Driver.match_error"><code class="docutils literal notranslate"><span class="pre">Driver.match_error()</span></code></a></li>
 <li><a class="reference internal" href="#neo4j_utils.Driver.node_count"><code class="docutils literal notranslate"><span class="pre">Driver.node_count</span></code></a></li>
 <li><a class="reference internal" href="#neo4j_utils.Driver.node_labels"><code class="docutils literal notranslate"><span class="pre">Driver.node_labels</span></code></a></li>
@@ -391,6 +393,18 @@ loaded into an empty database.</p></li>
 <dt class="sig sig-object py" id="neo4j_utils.Driver.label_counts">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">label_counts</span></span><a class="headerlink" href="#neo4j_utils.Driver.label_counts" title="Permalink to this definition"></a></dt>
 <dd><p>Count the nodes by labels.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.last_fail">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">last_fail</span></span><a class="headerlink" href="#neo4j_utils.Driver.last_fail" title="Permalink to this definition"></a></dt>
+<dd><p>The last failed query.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="neo4j_utils.Driver.last_query">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">last_query</span></span><a class="headerlink" href="#neo4j_utils.Driver.last_query" title="Permalink to this definition"></a></dt>
+<dd><p>The last succesful query.</p>
 </dd></dl>
 
 <dl class="py method">
