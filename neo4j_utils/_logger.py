@@ -13,7 +13,7 @@
 Configuration of the module logger.
 """
 
-__all__ = ['get_logger', 'log', 'logfile']
+__all__ = ['get_logger', 'log', 'logfile', 'log_traceback']
 
 from datetime import datetime
 import os
@@ -21,6 +21,8 @@ import sys
 import pydoc
 import logging
 import tempfile
+import itertools
+import traceback
 
 import colorlog
 
@@ -118,6 +120,55 @@ def log():
     with open(logfile()) as fp:
 
         pydoc.pager(fp.read())
+
+
+def log_traceback():
+    """
+    Includes the last traceback into the log.
+    """
+
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+
+    if exc_type is not None:
+
+        f = exc_traceback.tb_frame.f_back
+        stack = traceback.extract_stack(f)
+
+    else:
+
+        stack = traceback.extract_stack()[:-1]
+
+    trc_head = 'Traceback (most recent call last):\n'
+    trc_lines = list(
+        itertools.chain(
+            *(
+                stack_level.strip('\n').split('\n')
+                for stack_level in traceback.format_list(stack)
+            )
+        ),
+    )
+
+    if exc_type is not None:
+
+        trc_lines.extend(
+            ('  %s' % traceback.format_exc().lstrip(trc_head)).split('\n'),
+        )
+
+    stack_top = 0
+
+    for i, line in enumerate(trc_lines):
+
+        if line.strip().endswith('<module>'):
+
+            stack_top = i
+
+    trc_lines = trc_lines[stack_top:]
+
+    logger.error(trc_head.strip())
+
+    for traceline in trc_lines:
+
+        logger.error(traceline)
 
 
 logger = get_logger()
