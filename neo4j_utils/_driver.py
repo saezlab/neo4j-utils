@@ -617,6 +617,7 @@ class Driver:
                         )
 
             logger.error(f'Failed to run query: {printer.error_str(e)}')
+            logger.error(f'The error happened with this query: {query}')
 
             if e.__class__.__name__ == 'AuthError':
 
