@@ -999,8 +999,8 @@ class Driver:
         Requires the database to be empty.
         """
 
-        self.drop_indices()
         self.drop_constraints()
+        self.drop_indices()
 
 
     def drop_constraints(self):
@@ -1011,7 +1011,6 @@ class Driver:
         """
 
         self._drop_indices(what = 'constraints')
-
 
 
     def drop_indices(self):
