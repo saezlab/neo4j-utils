@@ -36,6 +36,7 @@ import neo4j.exceptions as neo4j_exc
 
 import neo4j_utils._misc as _misc
 import neo4j_utils._print as printer
+import neo4j_utils._query as _query
 
 __all__ = ['CONFIG_FILES', 'DEFAULT_CONFIG', 'Driver']
 
@@ -143,6 +144,7 @@ class Driver:
         }
         self._config_file = config
         self._drivers = {}
+        self._queries = {}
         self._offline = offline
         self.multi_db = multi_db
 
@@ -583,6 +585,11 @@ class Driver:
 
                 res = session.run(query, **kwargs)
 
+                self._queries['last'] = _query.Query(
+                    query = query,
+                    args = kwargs,
+                )
+
                 return res.data(), res.consume()
 
         except (neo4j_exc.Neo4jError, neo4j_exc.DriverError) as e:
@@ -618,6 +625,10 @@ class Driver:
 
             logger.error(f'Failed to run query: {printer.error_str(e)}')
             logger.error(f'The error happened with this query: {query}')
+            self._queries['last_failed'] = _query.Query(
+                query = query,
+                args = kwargs,
+            )
 
             if e.__class__.__name__ == 'AuthError':
 
@@ -1554,3 +1565,21 @@ class Driver:
                 )
             )
         )
+
+
+    @property
+    def last_query(self):
+        """
+        The last succesful query.
+        """
+
+        return self._queries.get('last')
+
+
+    @property
+    def last_fail(self):
+        """
+        The last failed query.
+        """
+
+        return self._queries.get('last_failed')
