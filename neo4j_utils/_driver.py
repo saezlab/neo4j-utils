@@ -18,7 +18,7 @@ provides basic management methods.
 
 from __future__ import annotations
 
-from ._logger import logger
+from ._logger import logger, log_traceback
 
 logger.debug(f'Loading module {__name__.strip("_")}.')
 
@@ -625,6 +625,8 @@ class Driver:
 
             logger.error(f'Failed to run query: {printer.error_str(e)}')
             logger.error(f'The error happened with this query: {query}')
+            log_traceback()
+
             self._queries['last_failed'] = _query.Query(
                 query = query,
                 args = kwargs,
