@@ -17,10 +17,10 @@ __all__ = ['get_logger', 'log', 'logfile']
 
 from datetime import datetime
 import os
+import sys
 import pydoc
 import logging
 import tempfile
-import importlib as imp
 
 import colorlog
 
@@ -80,7 +80,7 @@ def get_logger(name: str = 'neo4ju') -> logging.Logger:
         def _logfactory_patched(*args, **kwargs):
 
             record = _logfactory(*args, **kwargs)
-            record.func_in_brackets = '[%s.%s]' % (record.name, record.funcName)
+            record.func_in_brackets = f'[{record.name}.{record.funcName}]'
             record.func_in_brackets = '%-30s' % record.func_in_brackets
             record.level_in_brackets = '[%s]' % record.levelname
             record.level_in_brackets = '%-10s' % record.level_in_brackets
@@ -96,6 +96,7 @@ def get_logger(name: str = 'neo4ju') -> logging.Logger:
         logger.setLevel(logging.DEBUG)
 
         logger.info(f'This is Neo4j utils v{__version__}.')
+        logger.info(f'Using Python {sys.version}.')
         logger.info(f'Logging into `{logfile}`.')
 
     return logging.getLogger(name)
