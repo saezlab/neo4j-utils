@@ -11,4 +11,4 @@ it to make its usage a bit more convenient.
 
 **Issues, feedback:** https://github.com/saezlab/neo4j-utils/issues
 
-**Developed by** the `*Saez Lab* <https://saezlab.org/>`_.
+**Developed by** the *`Saez Lab <https://saezlab.org/>`_.*
