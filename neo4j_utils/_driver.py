@@ -28,10 +28,12 @@ import re
 import builtins
 import warnings
 import importlib as imp
+import itertools
 import contextlib
 
 import yaml
 import neo4j
+import appdirs
 import neo4j.exceptions as neo4j_exc
 
 import neo4j_utils._misc as _misc
@@ -300,11 +302,16 @@ class Driver:
 
         if not self._config_file or not os.path.exists(self._config_file):
 
-            for config_file in CONFIG_FILES.__args__:
+            confdirs = ('.', appdirs.user_config_dir('neo4j-utils', 'saezlab'))
+            conffiles = CONFIG_FILES.__args__
 
-                if os.path.exists(config_file):
+            for config_path_t in itertools.product(confdirs, conffiles):
 
-                    self._config_file = config_file
+                config_path_s = os.path.join(*config_path_t)
+
+                if os.path.exists(config_path_s):
+
+                    self._config_file = config_path_s
 
         if self._config_file and os.path.exists(self._config_file):
 
