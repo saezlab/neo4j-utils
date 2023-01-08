@@ -78,6 +78,7 @@ class Driver:
             multi_db: bool = True,  # legacy parameter for pre-4.0 DBs
             fallback_db: str | tuple[str] | None = None,
             fallback_on: str | set[str] | None = None,
+            multi_db: bool | None = None,
             **kwargs
     ):
         """
@@ -129,6 +130,8 @@ class Driver:
                 of the errors it doesn't make sense to try to run with
                 another database, but especially for database and server
                 management commands this is a convenient solution.
+            multi_db:
+                Not sure what is this for, biocypher requires it.
             kwargs:
                 Ignored.
         """
