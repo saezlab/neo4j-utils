@@ -29,6 +29,7 @@ import builtins
 import warnings
 import importlib as imp
 import contextlib
+from _neo4j_version_detection import Neo4j_Version_Detection
 
 import yaml
 import neo4j
@@ -999,8 +1000,14 @@ class Driver:
         Requires the database to be empty.
         """
 
-        self.drop_constraints()
-        self.drop_indices()
+        neo4j_version = Neo4j_Version_Detection()
+
+        if neo4j_version.get_version() >= 5:
+            self.drop_constraints()
+
+        else:
+            self.drop_indices()
+            self.drop_constraints()
 
 
     def drop_constraints(self):
@@ -1022,7 +1029,6 @@ class Driver:
 
         self._drop_indices(what = 'indexes')
 
-
     def _drop_indices(
             self,
             what: Literal['indexes', 'indices', 'constraints'] = 'constraints',
@@ -1030,19 +1036,23 @@ class Driver:
 
         what_u = self._idx_cstr_synonyms(what)
 
+        neo4j_version = Neo4j_Version_Detection()
+
         with self.session() as s:
 
             try:
 
-                indices = s.run(f'CALL db.{what}')
+                if neo4j_version.get_version() >= 5:
+                    indices = s.run(f'SHOW {what}')
+                else:
+                    indices = s.run(f'CALL db. {what}')
 
                 indices = list(indices)
                 n_indices = len(indices)
                 index_names = ', '.join(i['name'] for i in indices)
 
                 for idx in indices:
-
-                    s.run(f'DROP {what_u} {idx["name"]}')
+                    s.run(f'DROP {what_u} {idx["name"]} IF EXISTS')
 
                 logger.info(f'Dropped {n_indices} indices: {index_names}.')
 
