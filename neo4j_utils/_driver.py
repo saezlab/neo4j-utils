@@ -75,10 +75,9 @@ class Driver:
             raise_errors: bool | None = None,
             wipe: bool = False,
             offline: bool = False,
-            multi_db: bool = True,  # legacy parameter for pre-4.0 DBs
             fallback_db: str | tuple[str] | None = None,
             fallback_on: str | set[str] | None = None,
-            multi_db: bool | None = None,
+            multi_db: bool | None = None, # legacy parameter for pre-4.0 DBs
             **kwargs
     ):
         """
@@ -1440,7 +1439,7 @@ class Driver:
         Enable or disable offline mode.
         """
 
-        self.go_offline if offline else self.go_online()
+        self.go_offline() if offline else self.go_online()
 
 
     def go_offline(self):
