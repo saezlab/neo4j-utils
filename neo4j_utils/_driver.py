@@ -28,10 +28,12 @@ import re
 import builtins
 import warnings
 import importlib as imp
+import itertools
 import contextlib
 
 import yaml
 import neo4j
+import appdirs
 import neo4j.exceptions as neo4j_exc
 
 import neo4j_utils._misc as _misc
@@ -74,9 +76,9 @@ class Driver:
             raise_errors: bool | None = None,
             wipe: bool = False,
             offline: bool = False,
-            multi_db: bool = True,  # legacy parameter for pre-4.0 DBs
             fallback_db: str | tuple[str] | None = None,
             fallback_on: str | set[str] | None = None,
+            multi_db: bool | None = None, # legacy parameter for pre-4.0 DBs
             **kwargs
     ):
         """
@@ -128,6 +130,8 @@ class Driver:
                 of the errors it doesn't make sense to try to run with
                 another database, but especially for database and server
                 management commands this is a convenient solution.
+            multi_db:
+                Not sure what is this for, biocypher requires it.
             kwargs:
                 Ignored.
         """
@@ -301,11 +305,16 @@ class Driver:
 
         if not self._config_file or not os.path.exists(self._config_file):
 
-            for config_file in CONFIG_FILES.__args__:
+            confdirs = ('.', appdirs.user_config_dir('neo4j-utils', 'saezlab'))
+            conffiles = CONFIG_FILES.__args__
 
-                if os.path.exists(config_file):
+            for config_path_t in itertools.product(confdirs, conffiles):
 
-                    self._config_file = config_file
+                config_path_s = os.path.join(*config_path_t)
+
+                if os.path.exists(config_path_s):
+
+                    self._config_file = config_path_s
 
         if self._config_file and os.path.exists(self._config_file):
 
@@ -1440,7 +1449,7 @@ class Driver:
         Enable or disable offline mode.
         """
 
-        self.go_offline if offline else self.go_online()
+        self.go_offline() if offline else self.go_online()
 
 
     def go_offline(self):
