@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
+import math
 import random
 import string
-import math
 import itertools
 import collections
 
 import tqdm
 
 import neo4j_utils
+
+__all__ = ['by_label', 'by_type', 'chunks', 'insert0', 'insert1', 'insert2', 'insert3', 'k_ids', 'main', 'random_nodes', 'random_rels', 'rstring', 'unique_labels']
 
 
 def rstring(l = 10, lower = False, title = False, upper = False):
@@ -90,7 +92,7 @@ def random_rels(
         nlabels = 1,
         nnprops = 0,
         nrprops = 0,
-    ):
+):
     """
     A list of dicts, each represents a relation with the labels and IDs of
     the source and target nodes, the ID and type of the relation.
@@ -213,10 +215,12 @@ def insert1(driver, data = None, batch_size = 1.5e4, **kwargs):
 
     data = data or random_rels(**kwargs)
 
-    nodes = list(sorted(
-        {d['source_id'] for d in data} |
-        {d['target_id'] for d in data}
-    ))
+    nodes = list(
+        sorted(
+            {d['source_id'] for d in data} |
+            {d['target_id'] for d in data},
+        ),
+    )
 
     driver.query('CREATE INDEX node_id IF NOT EXISTS FOR (n:Anything) ON (n.ID)')
     driver.query('CREATE LOOKUP INDEX node_la IF NOT EXISTS FOR (n) ON EACH labels(n)')
@@ -242,10 +246,12 @@ def insert1(driver, data = None, batch_size = 1.5e4, **kwargs):
     driver.query('CREATE TEXT INDEX node_it IF NOT EXISTS FOR (n:Anything) ON (n.ID)')
     driver.query('CALL db.awaitIndexes()')
 
-    data = list(sorted(
-        data,
-        key = lambda r: (r['source_id'], r['target_id'])
-    ))
+    data = list(
+        sorted(
+            data,
+            key = lambda r: (r['source_id'], r['target_id']),
+        ),
+    )
 
     for batch in chunks(data, batch_size):
 
@@ -271,7 +277,7 @@ def insert2(driver, data = None, batch_size = 1.5e4, **kwargs):
 
     nodes = list(
         {d['source_id'] for d in data} |
-        {d['target_id'] for d in data}
+        {d['target_id'] for d in data},
     )
 
     # driver.query('CREATE CONSTRAINT node_id IF NOT EXISTS FOR (n:Anything) REQUIRE n.ID IS UNIQUE')
@@ -322,7 +328,7 @@ def insert3(driver, edges = None, nodes = None, batch_size = 1.5e4, **kwargs):
 
         driver.query(
             f'CREATE INDEX node_id_{label.lower()} IF NOT EXISTS '
-            f'FOR (n:{label}) ON (n.ID)'
+            f'FOR (n:{label}) ON (n.ID)',
         )
 
     print('Creating relation indices')
@@ -330,7 +336,7 @@ def insert3(driver, edges = None, nodes = None, batch_size = 1.5e4, **kwargs):
 
         driver.query(
             f'CREATE INDEX rel_id_{rtype[0].lower()} IF NOT EXISTS '
-            f'FOR ()-[r:{rtype[0]}]->() ON (r.ID)'
+            f'FOR ()-[r:{rtype[0]}]->() ON (r.ID)',
         )
 
     print('Deploying indices')

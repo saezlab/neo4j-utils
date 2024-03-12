@@ -19,7 +19,7 @@ logger.debug(f'Loading module {__name__.strip("_")}.')
 
 from typing import Optional
 
-__all__ = ['bcolors', 'pretty', 'dict_str']
+__all__ = ['bcolors', 'dict_str', 'error_str', 'pretty']
 
 
 class bcolors:
