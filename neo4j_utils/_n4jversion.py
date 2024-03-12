@@ -1,10 +1,9 @@
 import subprocess
 
-class Neo4j_Version_Detection:
 
+class Neo4jVersion:
     '''
     Provides version information for Neo4j.
-
     '''
 
     major: int | None
@@ -19,5 +18,8 @@ class Neo4j_Version_Detection:
             print(f"Error detecting Neo4j version: {e}")
             self.major = None
 
-    def get_version(self):
+    @property
+    def version(self):
         return self.major
+
+

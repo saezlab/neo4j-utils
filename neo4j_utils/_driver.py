@@ -29,7 +29,6 @@ import builtins
 import warnings
 import importlib as imp
 import contextlib
-from _neo4j_version_detection import Neo4j_Version_Detection
 
 import yaml
 import neo4j
@@ -38,6 +37,7 @@ import neo4j.exceptions as neo4j_exc
 import neo4j_utils._misc as _misc
 import neo4j_utils._print as printer
 import neo4j_utils._query as _query
+import neo4j_utils._n4jversion as _n4jversion
 
 __all__ = ['CONFIG_FILES', 'DEFAULT_CONFIG', 'Driver']
 
@@ -1000,14 +1000,14 @@ class Driver:
         Requires the database to be empty.
         """
 
-        neo4j_version = Neo4j_Version_Detection()
+        neo4j_version = _n4jversion.Neo4jVersion()
 
-        if neo4j_version.get_version() >= 5:
+        if neo4j_version.version >= 5:
             self.drop_constraints()
 
         else:
-            self.drop_indices()
             self.drop_constraints()
+            self.drop_indices()
 
 
     def drop_constraints(self):
@@ -1036,13 +1036,13 @@ class Driver:
 
         what_u = self._idx_cstr_synonyms(what)
 
-        neo4j_version = Neo4j_Version_Detection()
+        neo4j_version = _n4jversion.Neo4jVersion()
 
         with self.session() as s:
 
             try:
 
-                if neo4j_version.get_version() >= 5:
+                if neo4j_version.version >= 5:
                     indices = s.run(f'SHOW {what}')
                 else:
                     indices = s.run(f'CALL db. {what}')
@@ -1052,7 +1052,7 @@ class Driver:
                 index_names = ', '.join(i['name'] for i in indices)
 
                 for idx in indices:
-                    s.run(f'DROP {what_u} {idx["name"]} IF EXISTS')
+                    s.run(f'DROP {what_u} `{idx["name"]}` IF EXISTS')
 
                 logger.info(f'Dropped {n_indices} indices: {index_names}.')
 
