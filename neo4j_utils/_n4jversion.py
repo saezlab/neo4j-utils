@@ -27,5 +27,3 @@ class Neo4jVersion:
     @property
     def version(self):
         return self.major
-
-print(Neo4jVersion().version)
