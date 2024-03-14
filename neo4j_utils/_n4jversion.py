@@ -19,8 +19,6 @@ class Neo4jVersion:
             matches = re.findall(semver_pattern, output)
             version = matches[0]
             # Output format: "X.Y.Z" or "X.Y.Z-SNAPSHOT"
-            if version == None:
-                raise ValueError(f"No neo4j version found in {output}")
             self.major = int(version.split('.')[0])
         except (subprocess.CalledProcessError, ValueError, IndexError) as e:
             print(f'Error detecting Neo4j version: {e}')
@@ -29,3 +27,5 @@ class Neo4jVersion:
     @property
     def version(self):
         return self.major
+
+print(Neo4jVersion().version)
