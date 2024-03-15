@@ -1,5 +1,6 @@
 import subprocess
 import re
+from neo4j_utils._logger import logger
 
 __all__ = ['Neo4jVersion']
 
@@ -15,14 +16,15 @@ class Neo4jVersion:
         try:
             cmd = ['neo4j-admin', '--version']
             output = subprocess.check_output(cmd).decode().strip()
-            semver_pattern = r'\b\d+\.\d+\.\d+\b'
-            matches = re.findall(semver_pattern, output)
-            version = matches[0]
-            # Output format: "X.Y.Z" or "X.Y.Z-SNAPSHOT"
-            self.major = int(version.split('.')[0])
-        except (subprocess.CalledProcessError, ValueError, IndexError) as e:
-            print(f'Error detecting Neo4j version: {e}')
-            self.major = None
+            version_match = re.search(r'(\d+\.\d+\.\d+)', output)
+            if version_match:
+                self.major = int(version_match.group(1).split('.')[0])
+            else:
+                logger.warning(f"Unable to parse Neo4j version from command output: {output}")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Error running neo4j-admin: {e}")
+        except (ValueError, IndexError) as e:
+            logger.warning(f"Error detecting Neo4j version: {e}")
 
     @property
     def version(self):
