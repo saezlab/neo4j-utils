@@ -17,6 +17,8 @@ import collections
 
 __all__ = ['Query']
 
+from typing import Optional
+
 
 class Query(
         collections.namedtuple('QueryBase', ('query', 'args')),
@@ -29,4 +31,4 @@ class Query(
 
 
 Query.__new__.__defaults__ = (None,)
-Query.__annotations__ = {'query': str, 'args': dict | None}
+Query.__annotations__ = {'query': str, 'args': Optional[dict]}
