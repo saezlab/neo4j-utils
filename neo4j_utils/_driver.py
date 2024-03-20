@@ -78,7 +78,7 @@ class Driver:
             offline: bool = False,
             fallback_db: str | tuple[str] | None = None,
             fallback_on: str | set[str] | None = None,
-            multi_db: bool | None = None, # legacy parameter for pre-4.0 DBs
+            multi_db: bool | None = None,  # legacy parameter for pre-4.0 DBs
             **kwargs
     ):
         """
@@ -834,7 +834,7 @@ class Driver:
 
         with self.fallback():
 
-            resp, summary = self.query(query)
+            resp, summary = self.query(query=query, db=name)
 
         if resp:
 
