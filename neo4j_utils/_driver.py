@@ -836,7 +836,7 @@ class Driver:
 
         for record in resp:
             if name == record['name']:
-                return record.get(field, record[0])
+                return record.get(field, None)
 
 
     def db_online(self, name: str | None = None):
