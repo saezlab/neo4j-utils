@@ -833,10 +833,10 @@ class Driver:
 
         with self.fallback():
             resp, summary = self.query(query=query)
-            databases = [record['name'] for record in resp]
 
-        if name in databases:
-            return resp[0].get(field, resp[0])
+        for record in resp:
+            if name == record['name']:
+                return record.get(field, record[0])
 
 
     def db_online(self, name: str | None = None):
