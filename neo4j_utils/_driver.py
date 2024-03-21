@@ -39,7 +39,6 @@ import neo4j.exceptions as neo4j_exc
 import neo4j_utils._misc as _misc
 import neo4j_utils._print as printer
 import neo4j_utils._query as _query
-import neo4j_utils._n4jversion as _n4jversion
 
 __all__ = ['CONFIG_FILES', 'DEFAULT_CONFIG', 'Driver']
 
@@ -63,6 +62,7 @@ class Driver:
     """
 
     _connect_essential = ('uri', 'user', 'passwd')
+    version: str = None
 
     def __init__(
             self,
@@ -78,7 +78,7 @@ class Driver:
             offline: bool = False,
             fallback_db: str | tuple[str] | None = None,
             fallback_on: str | set[str] | None = None,
-            multi_db: bool | None = None, # legacy parameter for pre-4.0 DBs
+            multi_db: bool | None = None,  # legacy parameter for pre-4.0 DBs
             **kwargs
     ):
         """
@@ -166,6 +166,8 @@ class Driver:
                 'it from local config.',
             )
             self.db_connect()
+
+        self.get_neo4j_version()
 
         self.ensure_db()
 
@@ -566,8 +568,8 @@ class Driver:
             logger.info(f'Offline mode, not running query: `{query}`.')
 
             return None, None
-
-        db = db or self._db_config['db'] or neo4j.DEFAULT_DATABASE
+        if 'CREATE' not in query and 'SHOW DATABASES' not in query:
+            db = db or self._db_config['db'] or neo4j.DEFAULT_DATABASE
         fetch_size = fetch_size or self._db_config['fetch_size']
         raise_errors = (
             self._db_config['raise_errors']
@@ -830,15 +832,14 @@ class Driver:
 
         name = name or self.current_db
 
-        query = f'SHOW DATABASES WHERE name = "{name}";'
+        query = 'SHOW DATABASES'
 
         with self.fallback():
+            resp, summary = self.query(query=query)
 
-            resp, summary = self.query(query)
-
-        if resp:
-
-            return resp[0].get(field, resp[0])
+        for record in resp:
+            if name == record['name']:
+                return record.get(field, None)
 
 
     def db_online(self, name: str | None = None):
@@ -1009,9 +1010,9 @@ class Driver:
         Requires the database to be empty.
         """
 
-        neo4j_version = _n4jversion.Neo4jVersion()
+        major_neo4j_version = int(self.neo4j_version.split('.')[0])
 
-        if neo4j_version.version >= 5:
+        if major_neo4j_version >= 5:
             self.drop_constraints()
 
         else:
@@ -1045,13 +1046,13 @@ class Driver:
 
         what_u = self._idx_cstr_synonyms(what)
 
-        neo4j_version = _n4jversion.Neo4jVersion()
+        major_neo4j_version = int(self.neo4j_version.split('.')[0])
 
         with self.session() as s:
 
             try:
 
-                if neo4j_version.version >= 5:
+                if major_neo4j_version >= 5:
                     indices = s.run(f'SHOW {what}')
                 else:
                     indices = s.run(f'CALL db. {what}')
@@ -1343,7 +1344,7 @@ class Driver:
         """
 
         return {
-                r['LABELS(n)'][0]:
+            r['LABELS(n)'][0]:
                 r['COUNT(*)']
             for r in
             self.query(
@@ -1372,7 +1373,7 @@ class Driver:
         """
 
         return {
-                r['TYPE(r)']:
+            r['TYPE(r)']:
                 r['COUNT(*)']
             for r in
             self.query(
@@ -1566,7 +1567,7 @@ class Driver:
                 e.__class__
                     if isinstance(e, Exception) else
                 getattr(builtins, e, getattr(neo4j_exc, e, e))
-                    if isinstance(e, str) else
+                if isinstance(e, str) else
                 e
             )
 
@@ -1603,3 +1604,27 @@ class Driver:
         """
 
         return self._queries.get('last_failed')
+
+    @property
+    def neo4j_version(self) -> str:
+        """
+        Returns the neo4j version.
+        """
+        if self.version is None:
+            self.get_neo4j_version()
+        return self.version
+
+    def get_neo4j_version(self):
+        """Get neo4j version."""
+        try:
+            neo4j_version = self.query(
+                """
+                    CALL dbms.components()
+                    YIELD name, versions, edition
+                    UNWIND versions AS version
+                    RETURN version AS version
+                """,
+            )[0][0]['version']
+            self.version = neo4j_version
+        except Exception as e:
+            logger.warning(f'Error detecting Neo4j version: {e}')

@@ -1,3 +1,4 @@
+from typing import Union
 import re
 import subprocess
 
@@ -11,7 +12,7 @@ class Neo4jVersion:
     Provides version information for Neo4j.
     """
 
-    major: int | None
+    major: Union[int, None]
 
     def __init__(self):
         """Get the neo4j version from the neo4j-admin command."""
