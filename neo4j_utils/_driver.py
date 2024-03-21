@@ -1010,7 +1010,7 @@ class Driver:
         Requires the database to be empty.
         """
 
-        major_neo4j_version = self.neo4j_version.split('.')[0]
+        major_neo4j_version = int(self.neo4j_version.split('.')[0])
 
         if major_neo4j_version >= 5:
             self.drop_constraints()
@@ -1046,7 +1046,7 @@ class Driver:
 
         what_u = self._idx_cstr_synonyms(what)
 
-        major_neo4j_version = self.neo4j_version.split('.')[0]
+        major_neo4j_version = int(self.neo4j_version.split('.')[0])
 
         with self.session() as s:
 
