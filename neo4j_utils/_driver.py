@@ -1009,9 +1009,9 @@ class Driver:
         Requires the database to be empty.
         """
 
-        neo4j_version = self.get_neo4j_version()
+        neo4j_version = self.get_neo4j_major_version()
 
-        if neo4j_version.version >= 5:
+        if neo4j_version >= 5:
             self.drop_constraints()
 
         else:
@@ -1045,13 +1045,13 @@ class Driver:
 
         what_u = self._idx_cstr_synonyms(what)
 
-        neo4j_version = self.get_neo4j_version()
+        neo4j_version = self.get_neo4j_major_version()
 
         with self.session() as s:
 
             try:
 
-                if neo4j_version.version >= 5:
+                if neo4j_version >= 5:
                     indices = s.run(f'SHOW {what}')
                 else:
                     indices = s.run(f'CALL db. {what}')
@@ -1604,9 +1604,9 @@ class Driver:
 
         return self._queries.get('last_failed')
 
-    def get_neo4j_version(self):
+    def get_neo4j_major_version(self) -> int:
         """
-        Returns the neo4j version.
+        Returns the neo4j major version.
         """
 
         try:
@@ -1617,7 +1617,7 @@ class Driver:
                     UNWIND versions AS version
                     RETURN version AS version
                 """,
-            )[0][0]['version']
-            return neo4j_version
+            )[0][0]['version'].split('.')[0]
+            return int(neo4j_version)
         except Exception as e:
             logger.warning(f'Error detecting Neo4j version: {e}')
