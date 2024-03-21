@@ -62,7 +62,7 @@ class Driver:
     """
 
     _connect_essential = ('uri', 'user', 'passwd')
-    version: str
+    version: str = None
 
     def __init__(
             self,
