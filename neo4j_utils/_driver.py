@@ -830,18 +830,17 @@ class Driver:
 
         name = name or self.current_db
 
-        query = f'SHOW DATABASES WHERE name = "{name}";'
+        query = 'SHOW DATABASES'
 
         with self.fallback():
 
-            try:
-                resp, summary = self.query(query=query)
-            except neo4j.exceptions.ClientError:
-                return None
+            resp, summary = self.query(query=query)
+            databases = [record['name'] for record in resp]
 
-        if resp:
-
+        if name in databases:
             return resp[0].get(field, resp[0])
+        else:
+            return None
 
 
     def db_online(self, name: str | None = None):
