@@ -39,7 +39,6 @@ import neo4j.exceptions as neo4j_exc
 import neo4j_utils._misc as _misc
 import neo4j_utils._print as printer
 import neo4j_utils._query as _query
-import neo4j_utils._n4jversion as _n4jversion
 
 __all__ = ['CONFIG_FILES', 'DEFAULT_CONFIG', 'Driver']
 
@@ -1010,7 +1009,7 @@ class Driver:
         Requires the database to be empty.
         """
 
-        neo4j_version = _n4jversion.Neo4jVersion()
+        neo4j_version = self.get_neo4j_version()
 
         if neo4j_version.version >= 5:
             self.drop_constraints()
@@ -1046,7 +1045,7 @@ class Driver:
 
         what_u = self._idx_cstr_synonyms(what)
 
-        neo4j_version = _n4jversion.Neo4jVersion()
+        neo4j_version = self.get_neo4j_version()
 
         with self.session() as s:
 
