@@ -1603,3 +1603,17 @@ class Driver:
         """
 
         return self._queries.get('last_failed')
+
+    def get_neo4j_version(self):
+        """
+        Returns the neo4j version.
+        """
+
+        return self.driver.query(
+            """
+                CALL dbms.components()
+                YIELD name, versions, edition
+                UNWIND versions AS version
+                RETURN version AS version
+            """,
+        )[0][0]['version']
