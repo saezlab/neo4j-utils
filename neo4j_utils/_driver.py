@@ -1609,11 +1609,15 @@ class Driver:
         Returns the neo4j version.
         """
 
-        return self.driver.query(
-            """
-                CALL dbms.components()
-                YIELD name, versions, edition
-                UNWIND versions AS version
-                RETURN version AS version
-            """,
-        )[0][0]['version']
+        try:
+            neo4j_version = self.query(
+                """
+                    CALL dbms.components()
+                    YIELD name, versions, edition
+                    UNWIND versions AS version
+                    RETURN version AS version
+                """,
+            )[0][0]['version']
+            return neo4j_version
+        except Exception as e:
+            logger.warning(f'Error detecting Neo4j version: {e}')
