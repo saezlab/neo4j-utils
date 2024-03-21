@@ -566,12 +566,12 @@ class Driver:
             logger.info(f'Offline mode, not running query: `{query}`.')
 
             return None, None
-
-        db = db or self._db_config['db'] or neo4j.DEFAULT_DATABASE
+        if 'CREATE' not in query and 'SHOW DATABASES' not in query:
+            db = db or self._db_config['db'] or neo4j.DEFAULT_DATABASE
         fetch_size = fetch_size or self._db_config['fetch_size']
         raise_errors = (
             self._db_config['raise_errors']
-                if raise_errors is None else
+            if raise_errors is None else
             raise_errors
         )
 
@@ -833,8 +833,7 @@ class Driver:
         query = 'SHOW DATABASES'
 
         with self.fallback():
-
-            resp, summary = self.query(query=query)
+            resp, summary = self.query(query=query, db=neo4j.DEFAULT_DATABASE)
             databases = [record['name'] for record in resp]
 
         if name in databases:
@@ -1345,7 +1344,7 @@ class Driver:
         """
 
         return {
-                r['LABELS(n)'][0]:
+            r['LABELS(n)'][0]:
                 r['COUNT(*)']
             for r in
             self.query(
@@ -1374,7 +1373,7 @@ class Driver:
         """
 
         return {
-                r['TYPE(r)']:
+            r['TYPE(r)']:
                 r['COUNT(*)']
             for r in
             self.query(
@@ -1566,9 +1565,9 @@ class Driver:
 
             return (
                 e.__class__
-                    if isinstance(e, Exception) else
+                if isinstance(e, Exception) else
                 getattr(builtins, e, getattr(neo4j_exc, e, e))
-                    if isinstance(e, str) else
+                if isinstance(e, str) else
                 e
             )
 
@@ -1577,15 +1576,15 @@ class Driver:
         errors = {str_to_exc(e) for e in _misc.to_set(errors)}
 
         return (
-            error in errors or
-            (
-                isinstance(error, type) and
-                any(
-                    issubclass(error, e)
-                    for e in errors
-                    if isinstance(e, type)
+                error in errors or
+                (
+                        isinstance(error, type) and
+                        any(
+                            issubclass(error, e)
+                            for e in errors
+                            if isinstance(e, type)
+                        )
                 )
-            )
         )
 
 
