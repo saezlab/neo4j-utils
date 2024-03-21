@@ -834,7 +834,10 @@ class Driver:
 
         with self.fallback():
 
-            resp, summary = self.query(query=query, db=name)
+            try:
+                resp, summary = self.query(query=query)
+            except neo4j.exceptions.ClientError:
+                return None
 
         if resp:
 
