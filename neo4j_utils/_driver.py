@@ -1610,6 +1610,8 @@ class Driver:
         """
         Returns the neo4j version.
         """
+        if self.version is None:
+            self.get_neo4j_version()
         return self.version
 
     def get_neo4j_version(self):
